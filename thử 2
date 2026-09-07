@@ -1,1109 +1,429 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>DÙNG ĐƯỢC? — HAND OBJECT LAB</title>
-
-<style>
-
-*{
-    box-sizing:border-box;
-}
-
-html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#F2F0E8;
-    color:#111;
-    font-family:Arial,Helvetica,sans-serif;
-}
-
-/* ================= HEADER ================= */
-
-header{
-    height:72px;
-    border-bottom:2px solid #111;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 28px;
-}
-
-.logo{
-    font-size:25px;
-    font-weight:900;
-}
-
-.status{
-    font-family:monospace;
-    font-size:12px;
-}
-
-/* ================= MAIN ================= */
-
-main{
-    position:relative;
-    width:100%;
-    height:calc(100% - 130px);
-}
-
-/* ================= CAMERA ================= */
-
-#camera{
-    position:absolute;
-    right:25px;
-    top:25px;
-
-    width:240px;
-    height:170px;
-
-    object-fit:cover;
-
-    transform:scaleX(-1);
-
-    border:2px solid #111;
-
-    background:#111;
-
-    z-index:10;
-}
-
-/* ================= TEXT ================= */
-
-.title{
-    position:absolute;
-    left:30px;
-    top:28px;
-
-    z-index:5;
-}
-
-.title h1{
-    margin:0;
-
-    font-size:clamp(45px,6vw,90px);
-
-    line-height:.82;
-
-    letter-spacing:-5px;
-
-    font-weight:900;
-}
-
-.orange{
-    color:#FF5A00;
-}
-
-.description{
-    margin-top:25px;
-
-    width:320px;
-
-    font-family:monospace;
-
-    font-size:13px;
-
-    line-height:1.5;
-}
-
-/* ================= STAGE ================= */
-
-#stage{
-    position:absolute;
-
-    left:50%;
-    top:50%;
-
-    transform:translate(-50%,-48%);
-
-    width:600px;
-    height:480px;
-
-    border:2px solid #111;
-
-    overflow:hidden;
-
-    background:
-        linear-gradient(#ddd 1px,transparent 1px),
-        linear-gradient(90deg,#ddd 1px,transparent 1px);
-
-    background-size:30px 30px;
-}
-
-/* ================= OBJECT ================= */
-
-#object{
-    position:absolute;
-
-    left:50%;
-    top:50%;
-
-    width:300px;
-    height:330px;
-
-    transform:translate(-50%,-50%);
-}
-
-/* Main body */
-
-.body{
-    position:absolute;
-
-    left:45px;
-    top:45px;
-
-    width:210px;
-    height:250px;
-
-    background:#D6D2C8;
-
-    border:5px solid #111;
-
-    transition:
-        width .25s,
-        height .25s,
-        border-radius .25s,
-        transform .25s;
-}
-
-/* Orange module */
-
-.module{
-    position:absolute;
-
-    width:90px;
-    height:45px;
-
-    background:#FF5A00;
-
-    border:5px solid #111;
-
-    transition:
-        left .15s,
-        top .15s,
-        width .2s,
-        height .2s,
-        border-radius .2s,
-        transform .2s;
-}
-
-/* Handle */
-
-.handle{
-    position:absolute;
-
-    left:132px;
-    top:112px;
-
-    width:36px;
-    height:125px;
-
-    background:#111;
-
-    border:0;
-
-    transition:
-        left .15s,
-        top .15s,
-        width .2s,
-        height .2s,
-        transform .2s,
-        border-radius .2s;
-}
-
-.handle::after{
-    content:"";
-
-    position:absolute;
-
-    left:8px;
-    top:20px;
-
-    width:20px;
-    height:82px;
-
-    background:#FF5A00;
-}
-
-/* Purple module */
-
-.module2{
-    position:absolute;
-
-    left:15px;
-    top:300px;
-
-    width:270px;
-    height:28px;
-
-    background:#6F00FF;
-
-    border:4px solid #111;
-
-    transition:
-        width .2s,
-        left .2s,
-        transform .2s;
-}
-
-/* ================= HAND CURSOR ================= */
-
-#handCursor{
-    position:absolute;
-
-    width:28px;
-    height:28px;
-
-    border-radius:50%;
-
-    background:#FF0087;
-
-    border:4px solid #111;
-
-    pointer-events:none;
-
-    z-index:20;
-
-    display:none;
-
-    transform:translate(-50%,-50%);
-}
-
-/* ================= INSTRUCTION ================= */
-
-.instruction{
-    position:absolute;
-
-    left:30px;
-    bottom:30px;
-
-    font-family:monospace;
-
-    font-size:12px;
-
-    z-index:5;
-}
-
-/* ================= RIGHT PANEL ================= */
-
-.panel{
-    position:absolute;
-
-    right:25px;
-    bottom:30px;
-
-    width:240px;
-
-    font-family:monospace;
-
-    font-size:11px;
-
-    line-height:1.5;
-}
-
-.panel-title{
-    font-weight:bold;
-
-    border-bottom:2px solid #111;
-
-    padding-bottom:7px;
-
-    margin-bottom:8px;
-}
-
-.panel div{
-    padding:7px 0;
-
-    border-bottom:1px solid #999;
-}
-
-/* ================= RESULT ================= */
-
-#result{
-    position:fixed;
-
-    inset:0;
-
-    background:#F2F0E8;
-
-    z-index:100;
-
-    display:none;
-
-    align-items:center;
-
-    justify-content:center;
-
-    text-align:center;
-}
-
-.result-content{
-    max-width:900px;
-
-    padding:30px;
-}
-
-.result-small{
-    font-family:monospace;
-
-    font-size:13px;
-}
-
-.result-title{
-    margin:20px 0;
-
-    font-size:clamp(55px,9vw,120px);
-
-    font-weight:900;
-
-    line-height:.8;
-
-    letter-spacing:-6px;
-}
-
-.result-text{
-    font-family:monospace;
-
-    line-height:1.6;
-}
-
-button{
-    margin-top:25px;
-
-    padding:14px 25px;
-
-    background:#111;
-
-    color:white;
-
-    border:0;
-
-    font-weight:bold;
-
-    cursor:pointer;
-}
-
-/* ================= FOOTER ================= */
-
-footer{
-    height:58px;
-
-    border-top:2px solid #111;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    padding:0 28px;
-
-    font-family:monospace;
-
-    font-size:11px;
-}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DÙNG ĐƯỢC? — THE DOOR</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      background-color: #0d0d0d;
+      color: #f0f0f0;
+      font-family: 'Courier New', Courier, monospace;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #webcam-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 160px;
+      height: 120px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 10;
+      background: #000;
+    }
+    #webcam {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    #ui-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header-title {
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      color: #888;
+    }
+
+    .prompt-box {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px 30px;
+      border-radius: 4px;
+      border: 1px solid #333;
+      backdrop-filter: blur(5px);
+      max-width: 600px;
+      margin: 0 auto;
+      transition: all 0.5s ease;
+    }
+
+    .prompt-text {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .sub-text {
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #222;
+      border: 1px solid #444;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: #00ff66;
+      margin-top: 10px;
+    }
+
+    #stats-wall {
+      display: none;
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid #444;
+      padding: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      color: #ff3366;
+      font-weight: bold;
+    }
+  </style>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- MediaPipe Hands -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
-
-
 <body>
 
-
-<header>
-
-<div class="logo">
-DÙNG ĐƯỢC?
-</div>
-
-<div class="status" id="status">
-CAMERA: ĐANG KHỞI ĐỘNG...
-</div>
-
-</header>
-
-
-
-<main>
-
-
-<!-- CAMERA -->
-
-<video
-    id="camera"
-    autoplay
-    muted
-    playsinline>
-</video>
-
-
-
-<!-- TITLE -->
-
-<section class="title">
-
-<h1>
-MỘT VẬT.<br>
-<span class="orange">
-NHIỀU CÁCH DÙNG.
-</span>
-</h1>
-
-<div class="description">
-
-ĐỪNG DÙNG CHUỘT.<br><br>
-
-HÃY ĐƯA TAY VÀO TRƯỚC CAMERA.<br><br>
-
-DI CHUYỂN TAY.<br>
-VẬT THỂ SẼ THAY ĐỔI THEO BẠN.
-
-</div>
-
-</section>
-
-
-
-<!-- OBJECT STAGE -->
-
-<div id="stage">
-
-<div id="object">
-
-<div
-    class="body"
-    id="body">
-</div>
-
-<div
-    class="module"
-    id="module">
-</div>
-
-<div
-    class="handle"
-    id="handle">
-</div>
-
-<div
-    class="module2"
-    id="module2">
-</div>
-
-</div>
-
-
-<div id="handCursor"></div>
-
-</div>
-
-
-
-<!-- INSTRUCTION -->
-
-<div class="instruction">
-
-HAND TRACKING<br>
-MOVE YOUR HAND TO DESIGN
-
-</div>
-
-
-
-<!-- INFORMATION -->
-
-<div class="panel">
-
-<div class="panel-title">
-LIVE OBJECT SYSTEM
-</div>
-
-<div>
-HAND POSITION → MODULE POSITION
-</div>
-
-<div>
-HAND OPEN → OBJECT EXPANDS
-</div>
-
-<div>
-HAND MOVEMENT → HANDLE MOVES
-</div>
-
-<div>
-HAND ROTATION → HANDLE ROTATES
-</div>
-
-<div>
-ONE OBJECT → MANY CONFIGURATIONS
-</div>
-
-</div>
-
-
-
-</main>
-
-
-
-<footer>
-
-<span>
-GESTURE → MODULE → FORM → FUNCTION
-</span>
-
-<span>
-DESIGN WITH USERS / NOT FOR USERS
-</span>
-
-</footer>
-
-
-
-<!-- RESULT -->
-
-<div id="result">
-
-<div class="result-content">
-
-<div class="result-small">
-USER INTERVENTION COMPLETE
-</div>
-
-<div class="result-title">
-
-BẠN VỪA TẠO<br>
-
-<span class="orange">
-MỘT CÁCH DÙNG.
-</span>
-
-</div>
-
-<div class="result-text">
-
-Một vật thể không nhất thiết chỉ có một cách sử dụng.<br><br>
-
-Nhưng một thiết kế chỉ thật sự hoàn thiện<br>
-
-khi người sử dụng nói:
-
-<strong>DÙNG ĐƯỢC.</strong>
-
-</div>
-
-<button onclick="location.reload()">
-THỬ LẠI
-</button>
-
-</div>
-
-</div>
-
-
-
-<!-- ================= MEDIAPIPE ================= -->
-
-<script type="module">
-
-import {
-    FilesetResolver,
-    HandLandmarker
-}
-from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/+esm";
-
-
-/* =========================================
-   DOM
-========================================= */
-
-const video =
-document.getElementById("camera");
-
-const cursor =
-document.getElementById("handCursor");
-
-const body =
-document.getElementById("body");
-
-const module =
-document.getElementById("module");
-
-const handle =
-document.getElementById("handle");
-
-const module2 =
-document.getElementById("module2");
-
-const status =
-document.getElementById("status");
-
-const result =
-document.getElementById("result");
-
-
-/* =========================================
-   VARIABLES
-========================================= */
-
-let handLandmarker;
-
-let lastVideoTime = -1;
-
-let started = false;
-
-let interaction = 0;
-
-let previousX = 0;
-
-let previousY = 0;
-
-
-/* =========================================
-   START CAMERA
-========================================= */
-
-async function startCamera(){
-
-    try{
-
-        const stream =
-        await navigator.mediaDevices.getUserMedia({
-            video:{
-                width:1280,
-                height:720,
-                facingMode:"user"
-            },
-            audio:false
-        });
-
-        video.srcObject = stream;
-
-        await video.play();
-
-        status.textContent =
-        "CAMERA: ON / HAND TRACKING";
-
-        started = true;
-
-        detect();
-
+  <div id="webcam-container">
+    <video id="webcam" autoplay playsinline muted></video>
+  </div>
+
+  <div id="canvas-container"></div>
+
+  <div id="ui-overlay">
+    <div class="header-title">DÙNG ĐƯỢC? / USABLE?</div>
+
+    <div class="prompt-box" id="prompt-box">
+      <div class="prompt-text" id="main-prompt">ĐÂY LÀ MỘT CÁNH CỬA.</div>
+      <div class="sub-text" id="sub-prompt">Hãy đưa tay lên trước webcam để bắt đầu.</div>
+      <div class="status-badge" id="status-badge">Đang chờ nhận diện tay...</div>
+    </div>
+
+    <div id="stats-wall">
+      <h2 style="margin-bottom: 15px; color: #fff;">BỨC TƯỜNG DÙNG ĐƯỢC</h2>
+      <p>HÔM NAY:</p>
+      <div class="stat-number">183 NGƯỜI</div>
+      <div class="stat-number" style="color: #00ff66;">183 CỬ CHỈ</div>
+      <div class="stat-number" style="color: #00ccff;">27 CÁCH MỞ CỬA MỚI</div>
+      <p style="margin-top: 15px; font-size: 0.8rem; color: #888;">"THAY ĐỔI CÁCH BẠN DÙNG. THAY ĐỔI THIẾT KẾ."</p>
+    </div>
+
+    <div style="font-size: 0.8rem; color: #555;">DỰ ÁN TƯƠNG TÁC HỆ THỐNG MÔ-ĐÙN</div>
+  </div>
+
+  <script>
+    // --- 1. BIẾN TOÀN CỤC & TRẠNG THÁI ---
+    let currentStage = 1; // 1: Familiar, 2: Transforming, 3: Custom Form, 4: Impact/Stats
+    let gestureState = "NONE"; // PINCH, POINT, OPEN_PALM, ROTATE
+    let isDoorOpen = false;
+    let stageTimer = null;
+
+    // UI Elements
+    const mainPrompt = document.getElementById('main-prompt');
+    const subPrompt = document.getElementById('sub-prompt');
+    const statusBadge = document.getElementById('status-badge');
+    const statsWall = document.getElementById('stats-wall');
+    const promptBox = document.getElementById('prompt-box');
+
+    // --- 2. DỰNG CẢNH THREE.JS ---
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0d0d0d);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 7);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    // Ánh sáng
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(5, 10, 7);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
+
+    // Tạo Khung Cửa & Cánh Cửa
+    const doorGroup = new THREE.Group();
+    scene.add(doorGroup);
+
+    // Khung
+    const frameGeo = new THREE.BoxGeometry(2.6, 4.2, 0.1);
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+    const frame = new THREE.Mesh(frameGeo, frameMat);
+    doorGroup.add(frame);
+
+    // Cánh cửa (Xoay quanh bản lề bên trái)
+    const doorPivot = new THREE.Group();
+    doorPivot.position.set(-1.2, 0, 0.05);
+    doorGroup.add(doorPivot);
+
+    const doorGeo = new THREE.BoxGeometry(2.4, 4.0, 0.08);
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.4 });
+    const doorMesh = new THREE.Mesh(doorGeo, doorMat);
+    doorMesh.position.set(1.2, 0, 0);
+    doorPivot.add(doorMesh);
+
+    // Tay cầm (Mô-đun có thể biến hình)
+    const handleGroup = new THREE.Group();
+    handleGroup.position.set(2.0, 0, 0.08); // Đặt ở cạnh phải cánh cửa
+    doorPivot.add(handleGroup);
+
+    // Các dạng hình học của mô-đun tay cầm
+    const knobGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.1, 32);
+    const leverGeo = new THREE.BoxGeometry(0.5, 0.08, 0.08);
+    const buttonGeo = new THREE.BoxGeometry(0.4, 0.4, 0.1);
+    const barGeo = new THREE.BoxGeometry(0.1, 3.0, 0.1);
+
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0x00ccff, metalness: 0.8, roughness: 0.2 });
+    let currentHandleMesh = new THREE.Mesh(knobGeo, handleMat);
+    currentHandleMesh.rotation.x = Math.PI / 2;
+    handleGroup.add(currentHandleMesh);
+
+    // Xử lý Resize Màn Hình
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // --- 3. LOGIC TƯƠNG TÁC & BẢNG CHUYỂN KỊCH BẢN (STAGES) ---
+    function updateStageUI() {
+      switch(currentStage) {
+        case 1:
+          mainPrompt.innerText = "CÁCH MỞ QUEN THUỘC";
+          subPrompt.innerText = "Bắt chước thao tác xoay cổ tay để mở cửa.";
+          break;
+        case 2:
+          mainPrompt.innerText = "NHƯNG NẾU BẠN KHÔNG THỂ XOAY CỔ TAY?";
+          subPrompt.innerText = "Cơ cấu tay cầm đang tách ra thành các mô-đun...";
+          break;
+        case 3:
+          mainPrompt.innerText = "TẠO CÁCH MỞ MỚI BẰNG CỬ CHỈ CỦA BẠN";
+          subPrompt.innerText = "Xòe tay: Thanh dài | Chỉ 1 ngón: Nút bấm | Bóp tay: Tay nắm tròn";
+          break;
+        case 4:
+          mainPrompt.innerText = "KHÔNG CÓ MỘT KIỂU TAY CẦM DUY NHẤT";
+          subPrompt.innerText = "Mỗi chuyển động của bạn tạo ra một giải pháp mới.";
+          promptBox.style.display = "none";
+          statsWall.style.display = "block";
+          break;
+      }
     }
 
-    catch(error){
-
-        console.error(error);
-
-        status.textContent =
-        "CAMERA ERROR — HÃY CHẠY TRÊN HTTPS / LOCALHOST";
-
-        alert(
-            "Không thể mở camera.\n\n" +
-            "Nếu bạn đang mở file index.html bằng double-click, " +
-            "hãy chạy bằng GitHub Pages hoặc Live Server."
-        );
-
+    function setHandleType(type) {
+      handleGroup.remove(currentHandleMesh);
+      if (type === 'KNOB') {
+        currentHandleMesh = new THREE.Mesh(knobGeo, handleMat);
+        currentHandleMesh.rotation.x = Math.PI / 2;
+      } else if (type === 'BUTTON') {
+        currentHandleMesh = new THREE.Mesh(buttonGeo, handleMat);
+      } else if (type === 'BAR') {
+        currentHandleMesh = new THREE.Mesh(barGeo, handleMat);
+      } else if (type === 'LEVER') {
+        currentHandleMesh = new THREE.Mesh(leverGeo, handleMat);
+        currentHandleMesh.position.x = 0.2;
+      }
+      handleGroup.add(currentHandleMesh);
     }
 
-}
-
-
-/* =========================================
-   LOAD HAND LANDMARKER
-========================================= */
-
-async function createHandTracker(){
-
-    status.textContent =
-    "AI: ĐANG TẢI HAND TRACKING...";
-
-    const vision =
-    await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
-    );
-
-
-    handLandmarker =
-    await HandLandmarker.createFromOptions(
-        vision,
-        {
-
-            baseOptions:{
-                modelAssetPath:
-                "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-
-                delegate:"GPU"
-            },
-
-            runningMode:"VIDEO",
-
-            numHands:1,
-
-            minHandDetectionConfidence:0.5,
-
-            minHandPresenceConfidence:0.5,
-
-            minTrackingConfidence:0.5
-
+    function openDoor() {
+      if (isDoorOpen) return;
+      isDoorOpen = true;
+      let angle = 0;
+      const interval = setInterval(() => {
+        angle += 0.05;
+        doorPivot.rotation.y = -angle;
+        if (angle >= Math.PI / 2.5) {
+          clearInterval(interval);
+          setTimeout(closeDoor, 1500);
         }
-    );
-
-
-    status.textContent =
-    "AI: READY";
-
-    startCamera();
-
-}
-
-
-/* =========================================
-   DISTANCE
-========================================= */
-
-function distance(a,b){
-
-    const dx = a.x-b.x;
-
-    const dy = a.y-b.y;
-
-    return Math.sqrt(
-        dx*dx+dy*dy
-    );
-
-}
-
-
-/* =========================================
-   HAND OPEN DETECTION
-========================================= */
-
-function handOpen(hand){
-
-    /*
-       Khoảng cách đầu ngón tay
-       tới lòng bàn tay.
-
-       Không dùng để xác định
-       người khuyết tật.
-       Chỉ dùng để nhận dạng
-       gesture.
-    */
-
-    const wrist =
-    hand[0];
-
-    const index =
-    hand[8];
-
-    const middle =
-    hand[12];
-
-    const ring =
-    hand[16];
-
-    const pinky =
-    hand[20];
-
-    const d1 =
-    distance(wrist,index);
-
-    const d2 =
-    distance(wrist,middle);
-
-    const d3 =
-    distance(wrist,ring);
-
-    const d4 =
-    distance(wrist,pinky);
-
-    return (
-        d1>0.22 &&
-        d2>0.22 &&
-        d3>0.20 &&
-        d4>0.18
-    );
-
-}
-
-
-/* =========================================
-   UPDATE OBJECT
-========================================= */
-
-function updateObject(hand){
-
-    /*
-       INDEX FINGER
-       làm con trỏ.
-
-       Camera bị mirror,
-       nên X được đảo lại.
-    */
-
-    const index =
-    hand[8];
-
-    const x =
-    1-index.x;
-
-    const y =
-    index.y;
-
-
-    /* =========================
-       CURSOR POSITION
-    ========================= */
-
-    const stage =
-    document.getElementById("stage");
-
-    const rect =
-    stage.getBoundingClientRect();
-
-    const screenX =
-    x*rect.width;
-
-    const screenY =
-    y*rect.height;
-
-
-    cursor.style.display="block";
-
-    cursor.style.left =
-    screenX+"px";
-
-    cursor.style.top =
-    screenY+"px";
-
-
-    /* =========================
-       HANDLE FOLLOW HAND
-    ========================= */
-
-    let handleX =
-    x*300-50;
-
-    let handleY =
-    y*330-60;
-
-
-    handleX =
-    Math.max(0,
-    Math.min(265,handleX));
-
-    handleY =
-    Math.max(0,
-    Math.min(265,handleY));
-
-
-    handle.style.left =
-    handleX+"px";
-
-    handle.style.top =
-    handleY+"px";
-
-
-    /* =========================
-       HAND MOVEMENT
-    ========================= */
-
-    const movement =
-    Math.abs(x-previousX)+
-    Math.abs(y-previousY);
-
-
-    if(movement>0.015){
-
-        interaction++;
-
+      }, 16);
     }
 
-
-    previousX=x;
-
-    previousY=y;
-
-
-    /* =========================
-       OPEN HAND
-    ========================= */
-
-    if(handOpen(hand)){
-
-        body.style.width =
-        "260px";
-
-        body.style.height =
-        "290px";
-
-        body.style.borderRadius =
-        "30px";
-
-        module.style.width =
-        "150px";
-
-        module.style.height =
-        "65px";
-
-        module2.style.width =
-        "300px";
-
+    function closeDoor() {
+      let angle = doorPivot.rotation.y;
+      const interval = setInterval(() => {
+        angle += 0.05;
+        doorPivot.rotation.y = angle;
+        if (angle >= 0) {
+          doorPivot.rotation.y = 0;
+          clearInterval(interval);
+          isDoorOpen = false;
+          advanceStage();
+        }
+      }, 16);
     }
 
-    else{
-
-        body.style.width =
-        "210px";
-
-        body.style.height =
-        "250px";
-
-        body.style.borderRadius =
-        "0";
-
-        module.style.width =
-        "90px";
-
-        module.style.height =
-        "45px";
-
-        module2.style.width =
-        "270px";
-
+    function advanceStage() {
+      if (currentStage === 1) {
+        currentStage = 2;
+        updateStageUI();
+        // Hiệu ứng biến hình mô-đun
+        setTimeout(() => {
+          currentStage = 3;
+          updateStageUI();
+        }, 3000);
+      }
     }
 
+    // --- 4. NHẬN DIỆN CỬ CHỈ QUA MEDIAPIPE HANDS ---
+    const videoElement = document.getElementById('webcam');
 
-    /* =========================
-       ROTATION
-    ========================= */
+    function onResults(results) {
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        const landmarks = results.multiHandLandmarks[0];
+        
+        // Đo khoảng cách giữa đầu ngón cái (4) và đầu ngón trỏ (8)
+        const thumbTip = landmarks[4];
+        const indexTip = landmarks[8];
+        const distancePinch = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
 
-    const wrist =
-    hand[0];
+        // Kiểm tra xòe tay (khoảng cách giữa ngón cổ tay 0 và các ngón)
+        const wrist = landmarks[0];
+        const middleTip = landmarks[12];
+        const distanceOpen = Math.hypot(wrist.x - middleTip.x, wrist.y - middleTip.y);
 
-    const middle =
-    hand[9];
-
-    const angle =
-    Math.atan2(
-        middle.y-wrist.y,
-        middle.x-wrist.x
-    )*180/Math.PI;
-
-
-    handle.style.transform =
-    "rotate("+angle+"deg)";
-
-
-    /* =========================
-       MODULE FOLLOW
-    ========================= */
-
-    module.style.left =
-    (x*300-45)+"px";
-
-    module.style.top =
-    (y*250-50)+"px";
-
-
-    /* =========================
-       PURPLE MODULE
-    ========================= */
-
-    module2.style.transform =
-    "translateX("+
-    ((x-.5)*150)+
-    "px)";
-
-
-    /* =========================
-       FINISH
-    ========================= */
-
-    if(interaction>300){
-
-        result.style.display =
-        "flex";
-
-    }
-
-}
-
-
-/* =========================================
-   DETECTION LOOP
-========================================= */
-
-async function detect(){
-
-    if(
-        !started ||
-        !handLandmarker
-    ){
-
-        requestAnimationFrame(detect);
-
-        return;
-
-    }
-
-
-    if(
-        video.readyState >= 2 &&
-        video.currentTime !== lastVideoTime
-    ){
-
-        lastVideoTime =
-        video.currentTime;
-
-
-        const results =
-        handLandmarker.detectForVideo(
-            video,
-            performance.now()
-        );
-
-
-        if(
-            results.landmarks &&
-            results.landmarks.length>0
-        ){
-
-            updateObject(
-                results.landmarks[0]
-            );
-
+        // Logic phân loại cử chỉ đơn giản
+        if (distancePinch < 0.05) {
+          gestureState = "PINCH / ROTATE";
+        } else if (distanceOpen > 0.4) {
+          gestureState = "OPEN PALM";
+        } else if (indexTip.y < landmarks[6].y) {
+          gestureState = "POINTING";
+        } else {
+          gestureState = "HAND DETECTED";
         }
 
-        else{
+        statusBadge.innerText = `Cử chỉ: ${gestureState}`;
 
-            cursor.style.display =
-            "none";
+        // Xử lý Logic theo Stage
+        if (currentStage === 1 && (gestureState === "PINCH / ROTATE" || gestureState === "HAND DETECTED")) {
+          statusBadge.innerText = "Đã nhận diện thao tác xoay → Mở cửa";
+          openDoor();
+        } else if (currentStage === 3) {
+          if (gestureState === "OPEN PALM") {
+            setHandleType('BAR');
+            statusBadge.innerText = "Dạng: Thanh trượt dài (Xòe tay)";
+          } else if (gestureState === "POINTING") {
+            setHandleType('BUTTON');
+            statusBadge.innerText = "Dạng: Nút bấm lớn (Chỉ ngón)";
+          } else if (gestureState === "PINCH / ROTATE") {
+            setHandleType('KNOB');
+            statusBadge.innerText = "Dạng: Tay nắm tròn (Bóp tay)";
+          }
 
-            status.textContent =
-            "AI: ĐƯA TAY VÀO CAMERA";
-
+          // Trigger mở cửa sau khi đã chọn dạng mới
+          if (!isDoorOpen) {
+            clearTimeout(stageTimer);
+            stageTimer = setTimeout(() => {
+              openDoor();
+              setTimeout(() => {
+                currentStage = 4;
+                updateStageUI();
+              }, 2000);
+            }, 2500);
+          }
         }
 
+      } else {
+        statusBadge.innerText = "Không tìm thấy bàn tay";
+      }
     }
 
+    const hands = new Hands({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
 
-    requestAnimationFrame(detect);
+    hands.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.6,
+      minTrackingConfidence: 0.6
+    });
 
-}
+    hands.onResults(onResults);
 
+    const cameraUtils = new Camera(videoElement, {
+      onFrame: async () => {
+        await hands.send({ image: videoElement });
+      },
+      width: 640,
+      height: 480
+    });
 
-/* =========================================
-   RUN
-========================================= */
+    cameraUtils.start();
+    updateStageUI();
 
-createHandTracker();
+    // --- 5. RENDER LOOP ---
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      // Hiệu ứng nhẹ quay góc nhìn cửa nếu đang ở stage 2
+      if (currentStage === 2) {
+        handleGroup.rotation.y += 0.05;
+        handleGroup.rotation.x += 0.02;
+      } else {
+        handleGroup.rotation.set(0, 0, 0);
+        if (currentHandleMesh.geometry.type === "CylinderGeometry") {
+          currentHandleMesh.rotation.x = Math.PI / 2;
+        }
+      }
 
-</script>
-
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
 </body>
 </html>
