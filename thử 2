@@ -1,572 +1,1109 @@
-from pathlib import Path
-import zipfile
-
-root = Path("/mnt/data/DUNG_DUOC_OBJECT_LAB_V2")
-root.mkdir(exist_ok=True)
-
-html = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DÙNG ĐƯỢC? — Object Lab</title>
+
+<title>DÙNG ĐƯỢC? — HAND OBJECT LAB</title>
 
 <style>
-* {
-    box-sizing: border-box;
+
+*{
+    box-sizing:border-box;
 }
 
-body {
-    margin: 0;
-    background: #F3F1E9;
-    color: #111111;
-    font-family: Arial, Helvetica, sans-serif;
-    overflow: hidden;
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#F2F0E8;
+    color:#111;
+    font-family:Arial,Helvetica,sans-serif;
 }
 
-header {
-    height: 74px;
-    border-bottom: 2px solid #111;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
+/* ================= HEADER ================= */
+
+header{
+    height:72px;
+    border-bottom:2px solid #111;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
 }
 
-.logo {
-    font-size: 25px;
-    font-weight: 900;
+.logo{
+    font-size:25px;
+    font-weight:900;
 }
 
-.header-right {
-    font-family: monospace;
-    font-size: 12px;
+.status{
+    font-family:monospace;
+    font-size:12px;
 }
 
-main {
-    height: calc(100vh - 132px);
-    position: relative;
+/* ================= MAIN ================= */
+
+main{
+    position:relative;
+    width:100%;
+    height:calc(100% - 130px);
 }
 
-.intro {
-    position: absolute;
-    left: 30px;
-    top: 28px;
-    z-index: 5;
+/* ================= CAMERA ================= */
+
+#camera{
+    position:absolute;
+    right:25px;
+    top:25px;
+
+    width:240px;
+    height:170px;
+
+    object-fit:cover;
+
+    transform:scaleX(-1);
+
+    border:2px solid #111;
+
+    background:#111;
+
+    z-index:10;
 }
 
-.intro h1 {
-    margin: 0;
-    font-size: clamp(38px, 6vw, 82px);
-    line-height: 0.86;
-    letter-spacing: -4px;
+/* ================= TEXT ================= */
+
+.title{
+    position:absolute;
+    left:30px;
+    top:28px;
+
+    z-index:5;
 }
 
-.orange {
-    color: #FF5A00;
+.title h1{
+    margin:0;
+
+    font-size:clamp(45px,6vw,90px);
+
+    line-height:.82;
+
+    letter-spacing:-5px;
+
+    font-weight:900;
 }
 
-.intro p {
-    margin-top: 25px;
-    width: 330px;
-    font-family: monospace;
-    font-size: 13px;
-    line-height: 1.5;
+.orange{
+    color:#FF5A00;
 }
 
-.stage {
-    position: absolute;
-    width: 560px;
-    height: 500px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -46%);
+.description{
+    margin-top:25px;
+
+    width:320px;
+
+    font-family:monospace;
+
+    font-size:13px;
+
+    line-height:1.5;
 }
 
-.object-title {
-    text-align: center;
-    font-family: monospace;
-    font-size: 12px;
-    margin-bottom: 12px;
+/* ================= STAGE ================= */
+
+#stage{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%,-48%);
+
+    width:600px;
+    height:480px;
+
+    border:2px solid #111;
+
+    overflow:hidden;
+
+    background:
+        linear-gradient(#ddd 1px,transparent 1px),
+        linear-gradient(90deg,#ddd 1px,transparent 1px);
+
+    background-size:30px 30px;
 }
 
-.object {
-    position: relative;
-    width: 420px;
-    height: 400px;
-    margin: auto;
+/* ================= OBJECT ================= */
+
+#object{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:300px;
+    height:330px;
+
+    transform:translate(-50%,-50%);
 }
 
-.part {
-    position: absolute;
-    border: 4px solid #111;
-    background: #ddd;
-    cursor: grab;
-    touch-action: none;
-    user-select: none;
-    transition: transform 0.2s, width 0.2s, height 0.2s, border-radius 0.2s;
+/* Main body */
+
+.body{
+    position:absolute;
+
+    left:45px;
+    top:45px;
+
+    width:210px;
+    height:250px;
+
+    background:#D6D2C8;
+
+    border:5px solid #111;
+
+    transition:
+        width .25s,
+        height .25s,
+        border-radius .25s,
+        transform .25s;
 }
 
-.part:active {
-    cursor: grabbing;
+/* Orange module */
+
+.module{
+    position:absolute;
+
+    width:90px;
+    height:45px;
+
+    background:#FF5A00;
+
+    border:5px solid #111;
+
+    transition:
+        left .15s,
+        top .15s,
+        width .2s,
+        height .2s,
+        border-radius .2s,
+        transform .2s;
 }
 
-#mainBody {
-    width: 230px;
-    height: 290px;
-    left: 95px;
-    top: 60px;
-    background: #D8D5CB;
+/* Handle */
+
+.handle{
+    position:absolute;
+
+    left:132px;
+    top:112px;
+
+    width:36px;
+    height:125px;
+
+    background:#111;
+
+    border:0;
+
+    transition:
+        left .15s,
+        top .15s,
+        width .2s,
+        height .2s,
+        transform .2s,
+        border-radius .2s;
 }
 
-#moduleA {
-    width: 110px;
-    height: 52px;
-    left: 155px;
-    top: 25px;
-    background: #FF5A00;
+.handle::after{
+    content:"";
+
+    position:absolute;
+
+    left:8px;
+    top:20px;
+
+    width:20px;
+    height:82px;
+
+    background:#FF5A00;
 }
 
-#moduleB {
-    width: 38px;
-    height: 130px;
-    left: 191px;
-    top: 125px;
-    background: #111;
-    border-color: #111;
+/* Purple module */
+
+.module2{
+    position:absolute;
+
+    left:15px;
+    top:300px;
+
+    width:270px;
+    height:28px;
+
+    background:#6F00FF;
+
+    border:4px solid #111;
+
+    transition:
+        width .2s,
+        left .2s,
+        transform .2s;
 }
 
-#moduleB::after {
-    content: "";
-    position: absolute;
-    width: 18px;
-    height: 85px;
-    left: 6px;
-    top: 20px;
-    background: #FF5A00;
+/* ================= HAND CURSOR ================= */
+
+#handCursor{
+    position:absolute;
+
+    width:28px;
+    height:28px;
+
+    border-radius:50%;
+
+    background:#FF0087;
+
+    border:4px solid #111;
+
+    pointer-events:none;
+
+    z-index:20;
+
+    display:none;
+
+    transform:translate(-50%,-50%);
 }
 
-#moduleC {
-    width: 270px;
-    height: 30px;
-    left: 75px;
-    top: 350px;
-    background: #6F00FF;
+/* ================= INSTRUCTION ================= */
+
+.instruction{
+    position:absolute;
+
+    left:30px;
+    bottom:30px;
+
+    font-family:monospace;
+
+    font-size:12px;
+
+    z-index:5;
 }
 
-#hint {
-    text-align: center;
-    font-family: monospace;
-    font-size: 11px;
-    margin-top: 5px;
+/* ================= RIGHT PANEL ================= */
+
+.panel{
+    position:absolute;
+
+    right:25px;
+    bottom:30px;
+
+    width:240px;
+
+    font-family:monospace;
+
+    font-size:11px;
+
+    line-height:1.5;
 }
 
-.controls {
-    position: absolute;
-    right: 30px;
-    bottom: 28px;
-    width: 250px;
+.panel-title{
+    font-weight:bold;
+
+    border-bottom:2px solid #111;
+
+    padding-bottom:7px;
+
+    margin-bottom:8px;
 }
 
-.controls-title {
-    font-size: 12px;
-    font-weight: 900;
-    margin-bottom: 8px;
+.panel div{
+    padding:7px 0;
+
+    border-bottom:1px solid #999;
 }
 
-.object-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
+/* ================= RESULT ================= */
+
+#result{
+    position:fixed;
+
+    inset:0;
+
+    background:#F2F0E8;
+
+    z-index:100;
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
 }
 
-.object-buttons button {
-    padding: 12px 8px;
-    background: #F3F1E9;
-    border: 2px solid #111;
-    cursor: pointer;
-    font-weight: 900;
-    font-size: 11px;
+.result-content{
+    max-width:900px;
+
+    padding:30px;
 }
 
-.object-buttons button:hover {
-    background: #FF5A00;
-    color: white;
+.result-small{
+    font-family:monospace;
+
+    font-size:13px;
 }
 
-.reset {
-    margin-top: 8px;
-    width: 100%;
-    padding: 12px;
-    border: 0;
-    background: #111;
-    color: white;
-    cursor: pointer;
-    font-weight: 900;
+.result-title{
+    margin:20px 0;
+
+    font-size:clamp(55px,9vw,120px);
+
+    font-weight:900;
+
+    line-height:.8;
+
+    letter-spacing:-6px;
 }
 
-.counter {
-    position: absolute;
-    left: 30px;
-    bottom: 28px;
-    font-family: monospace;
-    font-size: 12px;
+.result-text{
+    font-family:monospace;
+
+    line-height:1.6;
 }
 
-#result {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #F3F1E9;
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+button{
+    margin-top:25px;
+
+    padding:14px 25px;
+
+    background:#111;
+
+    color:white;
+
+    border:0;
+
+    font-weight:bold;
+
+    cursor:pointer;
 }
 
-.result-inner {
-    max-width: 850px;
-    padding: 30px;
+/* ================= FOOTER ================= */
+
+footer{
+    height:58px;
+
+    border-top:2px solid #111;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 28px;
+
+    font-family:monospace;
+
+    font-size:11px;
 }
 
-.result-small {
-    font-family: monospace;
-    font-size: 13px;
-}
-
-.result-big {
-    margin: 15px 0;
-    font-size: clamp(48px, 8vw, 105px);
-    font-weight: 900;
-    line-height: 0.82;
-    letter-spacing: -5px;
-}
-
-.result-text {
-    font-family: monospace;
-    line-height: 1.6;
-}
-
-.close-result {
-    margin-top: 25px;
-    padding: 14px 25px;
-    border: 0;
-    background: #111;
-    color: white;
-    cursor: pointer;
-    font-weight: 900;
-}
-
-footer {
-    height: 58px;
-    border-top: 2px solid #111;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 28px;
-    font-family: monospace;
-    font-size: 11px;
-}
 </style>
 </head>
 
+
 <body>
 
+
 <header>
-    <div class="logo">DÙNG ĐƯỢC?</div>
-    <div class="header-right">OBJECT LAB / 002</div>
+
+<div class="logo">
+DÙNG ĐƯỢC?
+</div>
+
+<div class="status" id="status">
+CAMERA: ĐANG KHỞI ĐỘNG...
+</div>
+
 </header>
+
+
 
 <main>
 
-    <section class="intro">
-        <h1>
-            MỘT VẬT.<br>
-            <span class="orange">NHIỀU CÁCH DÙNG.</span>
-        </h1>
 
-        <p>
-            ĐỪNG CHỌN CÁCH DÙNG CÓ SẴN.<br>
-            HÃY TỰ THAY ĐỔI VẬT THỂ.<br><br>
-            KÉO CÁC MODULE.<br>
-            DOUBLE CLICK ĐỂ BIẾN HÌNH.
-        </p>
-    </section>
+<!-- CAMERA -->
 
-    <section class="stage">
+<video
+    id="camera"
+    autoplay
+    muted
+    playsinline>
+</video>
 
-        <div class="object-title" id="objectName">
-            OBJECT 01 — CÁNH CỬA
-        </div>
 
-        <div class="object" id="object">
 
-            <div class="part" id="mainBody"></div>
-            <div class="part" id="moduleA"></div>
-            <div class="part" id="moduleB"></div>
-            <div class="part" id="moduleC"></div>
+<!-- TITLE -->
 
-        </div>
+<section class="title">
 
-        <div id="hint">
-            KÉO MODULE • DOUBLE CLICK MODULE • TẠO RA MỘT CÁCH DÙNG MỚI
-        </div>
+<h1>
+MỘT VẬT.<br>
+<span class="orange">
+NHIỀU CÁCH DÙNG.
+</span>
+</h1>
 
-    </section>
+<div class="description">
 
-    <section class="controls">
+ĐỪNG DÙNG CHUỘT.<br><br>
 
-        <div class="controls-title">
-            THỬ MỘT VẬT KHÁC
-        </div>
+HÃY ĐƯA TAY VÀO TRƯỚC CAMERA.<br><br>
 
-        <div class="object-buttons">
-            <button onclick="changeObject('door')">CỬA</button>
-            <button onclick="changeObject('faucet')">VÒI NƯỚC</button>
-            <button onclick="changeObject('switch')">CÔNG TẮC</button>
-            <button onclick="changeObject('elevator')">THANG MÁY</button>
-        </div>
+DI CHUYỂN TAY.<br>
+VẬT THỂ SẼ THAY ĐỔI THEO BẠN.
 
-        <button class="reset" onclick="resetObject()">
-            RESET VẬT THỂ
-        </button>
+</div>
 
-    </section>
+</section>
 
-    <div class="counter">
-        USER INTERVENTION: <span id="count">0</span>
-    </div>
+
+
+<!-- OBJECT STAGE -->
+
+<div id="stage">
+
+<div id="object">
+
+<div
+    class="body"
+    id="body">
+</div>
+
+<div
+    class="module"
+    id="module">
+</div>
+
+<div
+    class="handle"
+    id="handle">
+</div>
+
+<div
+    class="module2"
+    id="module2">
+</div>
+
+</div>
+
+
+<div id="handCursor"></div>
+
+</div>
+
+
+
+<!-- INSTRUCTION -->
+
+<div class="instruction">
+
+HAND TRACKING<br>
+MOVE YOUR HAND TO DESIGN
+
+</div>
+
+
+
+<!-- INFORMATION -->
+
+<div class="panel">
+
+<div class="panel-title">
+LIVE OBJECT SYSTEM
+</div>
+
+<div>
+HAND POSITION → MODULE POSITION
+</div>
+
+<div>
+HAND OPEN → OBJECT EXPANDS
+</div>
+
+<div>
+HAND MOVEMENT → HANDLE MOVES
+</div>
+
+<div>
+HAND ROTATION → HANDLE ROTATES
+</div>
+
+<div>
+ONE OBJECT → MANY CONFIGURATIONS
+</div>
+
+</div>
+
+
 
 </main>
 
+
+
 <footer>
-    <span>GESTURE → MODULE → FORM → FUNCTION</span>
-    <span>DESIGN WITH USERS / NOT FOR USERS</span>
+
+<span>
+GESTURE → MODULE → FORM → FUNCTION
+</span>
+
+<span>
+DESIGN WITH USERS / NOT FOR USERS
+</span>
+
 </footer>
 
+
+
+<!-- RESULT -->
+
 <div id="result">
-    <div class="result-inner">
 
-        <div class="result-small">
-            USER INTERVENTION COMPLETE
-        </div>
+<div class="result-content">
 
-        <div class="result-big">
-            BẠN VỪA TẠO<br>
-            <span class="orange">MỘT CÁCH DÙNG.</span>
-        </div>
-
-        <div class="result-text">
-            Không có một hình dạng duy nhất.<br>
-            Không có một cách sử dụng duy nhất.<br><br>
-            Nhưng một thiết kế chỉ thật sự hoàn thiện<br>
-            khi người sử dụng nói:
-            <strong>DÙNG ĐƯỢC.</strong>
-        </div>
-
-        <button class="close-result" onclick="closeResult()">
-            TIẾP TỤC THỬ
-        </button>
-
-    </div>
+<div class="result-small">
+USER INTERVENTION COMPLETE
 </div>
 
-<script>
+<div class="result-title">
 
-let selectedObject = "door";
-let interactionCount = 0;
+BẠN VỪA TẠO<br>
 
-const objectData = {
+<span class="orange">
+MỘT CÁCH DÙNG.
+</span>
 
-    door: {
-        name: "OBJECT 01 — CÁNH CỬA",
-        colors: ["#FF5A00", "#111111", "#6F00FF"]
-    },
+</div>
 
-    faucet: {
-        name: "OBJECT 02 — VÒI NƯỚC",
-        colors: ["#6F00FF", "#111111", "#FF5A00"]
-    },
+<div class="result-text">
 
-    switch: {
-        name: "OBJECT 03 — CÔNG TẮC",
-        colors: ["#FF0087", "#111111", "#FF5A00"]
-    },
+Một vật thể không nhất thiết chỉ có một cách sử dụng.<br><br>
 
-    elevator: {
-        name: "OBJECT 04 — NÚT THANG MÁY",
-        colors: ["#FF5A00", "#6F00FF", "#111111"]
+Nhưng một thiết kế chỉ thật sự hoàn thiện<br>
+
+khi người sử dụng nói:
+
+<strong>DÙNG ĐƯỢC.</strong>
+
+</div>
+
+<button onclick="location.reload()">
+THỬ LẠI
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- ================= MEDIAPIPE ================= -->
+
+<script type="module">
+
+import {
+    FilesetResolver,
+    HandLandmarker
+}
+from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/+esm";
+
+
+/* =========================================
+   DOM
+========================================= */
+
+const video =
+document.getElementById("camera");
+
+const cursor =
+document.getElementById("handCursor");
+
+const body =
+document.getElementById("body");
+
+const module =
+document.getElementById("module");
+
+const handle =
+document.getElementById("handle");
+
+const module2 =
+document.getElementById("module2");
+
+const status =
+document.getElementById("status");
+
+const result =
+document.getElementById("result");
+
+
+/* =========================================
+   VARIABLES
+========================================= */
+
+let handLandmarker;
+
+let lastVideoTime = -1;
+
+let started = false;
+
+let interaction = 0;
+
+let previousX = 0;
+
+let previousY = 0;
+
+
+/* =========================================
+   START CAMERA
+========================================= */
+
+async function startCamera(){
+
+    try{
+
+        const stream =
+        await navigator.mediaDevices.getUserMedia({
+            video:{
+                width:1280,
+                height:720,
+                facingMode:"user"
+            },
+            audio:false
+        });
+
+        video.srcObject = stream;
+
+        await video.play();
+
+        status.textContent =
+        "CAMERA: ON / HAND TRACKING";
+
+        started = true;
+
+        detect();
+
     }
 
-};
+    catch(error){
 
-const parts = document.querySelectorAll(".part");
+        console.error(error);
 
-function registerInteraction() {
+        status.textContent =
+        "CAMERA ERROR — HÃY CHẠY TRÊN HTTPS / LOCALHOST";
 
-    interactionCount++;
+        alert(
+            "Không thể mở camera.\n\n" +
+            "Nếu bạn đang mở file index.html bằng double-click, " +
+            "hãy chạy bằng GitHub Pages hoặc Live Server."
+        );
 
-    document.getElementById("count").textContent = interactionCount;
-
-    if (interactionCount >= 12) {
-        document.getElementById("result").style.display = "flex";
     }
+
 }
 
-parts.forEach(part => {
 
-    let dragging = false;
-    let offsetX = 0;
-    let offsetY = 0;
+/* =========================================
+   LOAD HAND LANDMARKER
+========================================= */
 
-    part.addEventListener("pointerdown", function(e) {
+async function createHandTracker(){
 
-        dragging = true;
+    status.textContent =
+    "AI: ĐANG TẢI HAND TRACKING...";
 
-        const rect = part.getBoundingClientRect();
+    const vision =
+    await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
+    );
 
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
 
-        part.setPointerCapture(e.pointerId);
+    handLandmarker =
+    await HandLandmarker.createFromOptions(
+        vision,
+        {
 
-    });
+            baseOptions:{
+                modelAssetPath:
+                "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
 
-    part.addEventListener("pointermove", function(e) {
+                delegate:"GPU"
+            },
 
-        if (!dragging) return;
+            runningMode:"VIDEO",
 
-        const object = document.getElementById("object");
-        const objectRect = object.getBoundingClientRect();
+            numHands:1,
 
-        let x = e.clientX - objectRect.left - offsetX;
-        let y = e.clientY - objectRect.top - offsetY;
+            minHandDetectionConfidence:0.5,
 
-        x = Math.max(-30, Math.min(objectRect.width - 30, x));
-        y = Math.max(-30, Math.min(objectRect.height - 30, y));
+            minHandPresenceConfidence:0.5,
 
-        part.style.left = x + "px";
-        part.style.top = y + "px";
-
-    });
-
-    part.addEventListener("pointerup", function() {
-
-        if (dragging) {
-            registerInteraction();
-        }
-
-        dragging = false;
-
-    });
-
-    part.addEventListener("dblclick", function() {
-
-        registerInteraction();
-
-        const currentRadius = part.style.borderRadius;
-
-        if (currentRadius === "50%") {
-
-            part.style.borderRadius = "0";
-            part.style.transform = "rotate(0deg)";
-
-        } else {
-
-            part.style.borderRadius = "50%";
-            part.style.transform = "rotate(25deg)";
+            minTrackingConfidence:0.5
 
         }
+    );
 
-    });
 
-});
+    status.textContent =
+    "AI: READY";
 
-function changeObject(type) {
-
-    selectedObject = type;
-
-    const data = objectData[type];
-
-    document.getElementById("objectName").textContent = data.name;
-
-    document.getElementById("moduleA").style.background = data.colors[0];
-    document.getElementById("moduleB").style.background = data.colors[1];
-    document.getElementById("moduleC").style.background = data.colors[2];
-
-    resetObject();
+    startCamera();
 
 }
 
-function resetObject() {
 
-    document.getElementById("mainBody").style.left = "95px";
-    document.getElementById("mainBody").style.top = "60px";
-    document.getElementById("mainBody").style.borderRadius = "0";
-    document.getElementById("mainBody").style.transform = "rotate(0deg)";
+/* =========================================
+   DISTANCE
+========================================= */
 
-    document.getElementById("moduleA").style.left = "155px";
-    document.getElementById("moduleA").style.top = "25px";
-    document.getElementById("moduleA").style.borderRadius = "0";
-    document.getElementById("moduleA").style.transform = "rotate(0deg)";
+function distance(a,b){
 
-    document.getElementById("moduleB").style.left = "191px";
-    document.getElementById("moduleB").style.top = "125px";
-    document.getElementById("moduleB").style.borderRadius = "0";
-    document.getElementById("moduleB").style.transform = "rotate(0deg)";
+    const dx = a.x-b.x;
 
-    document.getElementById("moduleC").style.left = "75px";
-    document.getElementById("moduleC").style.top = "350px";
-    document.getElementById("moduleC").style.borderRadius = "0";
-    document.getElementById("moduleC").style.transform = "rotate(0deg)";
+    const dy = a.y-b.y;
+
+    return Math.sqrt(
+        dx*dx+dy*dy
+    );
 
 }
 
-function closeResult() {
 
-    document.getElementById("result").style.display = "none";
+/* =========================================
+   HAND OPEN DETECTION
+========================================= */
+
+function handOpen(hand){
+
+    /*
+       Khoảng cách đầu ngón tay
+       tới lòng bàn tay.
+
+       Không dùng để xác định
+       người khuyết tật.
+       Chỉ dùng để nhận dạng
+       gesture.
+    */
+
+    const wrist =
+    hand[0];
+
+    const index =
+    hand[8];
+
+    const middle =
+    hand[12];
+
+    const ring =
+    hand[16];
+
+    const pinky =
+    hand[20];
+
+    const d1 =
+    distance(wrist,index);
+
+    const d2 =
+    distance(wrist,middle);
+
+    const d3 =
+    distance(wrist,ring);
+
+    const d4 =
+    distance(wrist,pinky);
+
+    return (
+        d1>0.22 &&
+        d2>0.22 &&
+        d3>0.20 &&
+        d4>0.18
+    );
 
 }
+
+
+/* =========================================
+   UPDATE OBJECT
+========================================= */
+
+function updateObject(hand){
+
+    /*
+       INDEX FINGER
+       làm con trỏ.
+
+       Camera bị mirror,
+       nên X được đảo lại.
+    */
+
+    const index =
+    hand[8];
+
+    const x =
+    1-index.x;
+
+    const y =
+    index.y;
+
+
+    /* =========================
+       CURSOR POSITION
+    ========================= */
+
+    const stage =
+    document.getElementById("stage");
+
+    const rect =
+    stage.getBoundingClientRect();
+
+    const screenX =
+    x*rect.width;
+
+    const screenY =
+    y*rect.height;
+
+
+    cursor.style.display="block";
+
+    cursor.style.left =
+    screenX+"px";
+
+    cursor.style.top =
+    screenY+"px";
+
+
+    /* =========================
+       HANDLE FOLLOW HAND
+    ========================= */
+
+    let handleX =
+    x*300-50;
+
+    let handleY =
+    y*330-60;
+
+
+    handleX =
+    Math.max(0,
+    Math.min(265,handleX));
+
+    handleY =
+    Math.max(0,
+    Math.min(265,handleY));
+
+
+    handle.style.left =
+    handleX+"px";
+
+    handle.style.top =
+    handleY+"px";
+
+
+    /* =========================
+       HAND MOVEMENT
+    ========================= */
+
+    const movement =
+    Math.abs(x-previousX)+
+    Math.abs(y-previousY);
+
+
+    if(movement>0.015){
+
+        interaction++;
+
+    }
+
+
+    previousX=x;
+
+    previousY=y;
+
+
+    /* =========================
+       OPEN HAND
+    ========================= */
+
+    if(handOpen(hand)){
+
+        body.style.width =
+        "260px";
+
+        body.style.height =
+        "290px";
+
+        body.style.borderRadius =
+        "30px";
+
+        module.style.width =
+        "150px";
+
+        module.style.height =
+        "65px";
+
+        module2.style.width =
+        "300px";
+
+    }
+
+    else{
+
+        body.style.width =
+        "210px";
+
+        body.style.height =
+        "250px";
+
+        body.style.borderRadius =
+        "0";
+
+        module.style.width =
+        "90px";
+
+        module.style.height =
+        "45px";
+
+        module2.style.width =
+        "270px";
+
+    }
+
+
+    /* =========================
+       ROTATION
+    ========================= */
+
+    const wrist =
+    hand[0];
+
+    const middle =
+    hand[9];
+
+    const angle =
+    Math.atan2(
+        middle.y-wrist.y,
+        middle.x-wrist.x
+    )*180/Math.PI;
+
+
+    handle.style.transform =
+    "rotate("+angle+"deg)";
+
+
+    /* =========================
+       MODULE FOLLOW
+    ========================= */
+
+    module.style.left =
+    (x*300-45)+"px";
+
+    module.style.top =
+    (y*250-50)+"px";
+
+
+    /* =========================
+       PURPLE MODULE
+    ========================= */
+
+    module2.style.transform =
+    "translateX("+
+    ((x-.5)*150)+
+    "px)";
+
+
+    /* =========================
+       FINISH
+    ========================= */
+
+    if(interaction>300){
+
+        result.style.display =
+        "flex";
+
+    }
+
+}
+
+
+/* =========================================
+   DETECTION LOOP
+========================================= */
+
+async function detect(){
+
+    if(
+        !started ||
+        !handLandmarker
+    ){
+
+        requestAnimationFrame(detect);
+
+        return;
+
+    }
+
+
+    if(
+        video.readyState >= 2 &&
+        video.currentTime !== lastVideoTime
+    ){
+
+        lastVideoTime =
+        video.currentTime;
+
+
+        const results =
+        handLandmarker.detectForVideo(
+            video,
+            performance.now()
+        );
+
+
+        if(
+            results.landmarks &&
+            results.landmarks.length>0
+        ){
+
+            updateObject(
+                results.landmarks[0]
+            );
+
+        }
+
+        else{
+
+            cursor.style.display =
+            "none";
+
+            status.textContent =
+            "AI: ĐƯA TAY VÀO CAMERA";
+
+        }
+
+    }
+
+
+    requestAnimationFrame(detect);
+
+}
+
+
+/* =========================================
+   RUN
+========================================= */
+
+createHandTracker();
 
 </script>
 
 </body>
 </html>
-'''
-
-readme = """DÙNG ĐƯỢC? — OBJECT LAB V2
-
-CÁCH CHẠY:
-1. Giải nén ZIP.
-2. Mở file index.html bằng Chrome/Edge.
-3. Không cần cài thư viện.
-4. Kéo các module bằng chuột/trackpad.
-5. Double-click module để biến đổi.
-6. Thử 4 vật thể: Cửa, Vòi nước, Công tắc, Nút thang máy.
-
-ĐƯA LÊN GITHUB:
-- Tạo repository mới.
-- Upload index.html.
-- Commit changes.
-- Vào Settings > Pages.
-- Source: Deploy from a branch.
-- Branch: main / root.
-- Sau đó GitHub sẽ tạo đường link website.
-
-LƯU Ý:
-Đây là bản prototype tương tác bằng chuột/trackpad.
-Chưa tích hợp nhận diện bàn tay bằng webcam.
-Bước tiếp theo có thể tích hợp MediaPipe Hands để:
-GESTURE → MODULE → FORM → FUNCTION.
-"""
-
-(root / "index.html").write_text(html, encoding="utf-8")
-(root / "README.txt").write_text(readme, encoding="utf-8")
-
-zip_path = Path("/mnt/data/DUNG_DUOC_OBJECT_LAB_V2.zip")
-
-with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-    z.write(root / "index.html", "index.html")
-    z.write(root / "README.txt", "README.txt")
-
-print(f"Đã tạo: {zip_path}")
