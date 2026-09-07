@@ -1,0 +1,1572 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta name="viewport"
+      content="width=device-width,initial-scale=1">
+
+<title>DÙNG ĐƯỢC? — OBJECT LAB</title>
+
+<style>
+
+:root{
+    --bg:#f4f2ea;
+    --ink:#111;
+    --orange:#ff5a00;
+    --purple:#6f00ff;
+    --pink:#ff0087;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:Arial,Helvetica,sans-serif;
+    overflow:hidden;
+}
+
+/* HEADER */
+
+header,
+footer{
+
+    height:72px;
+
+    border-bottom:2px solid var(--ink);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 28px;
+
+}
+
+footer{
+
+    border-top:2px solid var(--ink);
+
+    border-bottom:0;
+
+    height:58px;
+
+    font:12px monospace;
+
+}
+
+.logo{
+
+    font-size:23px;
+
+    font-weight:1000;
+
+}
+
+.case{
+
+    font:12px monospace;
+
+}
+
+/* MAIN */
+
+main{
+
+    height:calc(100vh - 130px);
+
+    position:relative;
+
+    display:grid;
+
+    place-items:center;
+
+}
+
+#lab{
+
+    width:min(1120px,94vw);
+
+    height:min(700px,80vh);
+
+    position:relative;
+
+}
+
+/* TITLE */
+
+#title{
+
+    position:absolute;
+
+    top:0;
+
+    left:0;
+
+    font-size:clamp(28px,4vw,58px);
+
+    font-weight:1000;
+
+    line-height:.9;
+
+    z-index:3;
+
+}
+
+/* INSTRUCTION */
+
+#instruction{
+
+    position:absolute;
+
+    right:0;
+
+    top:8px;
+
+    width:260px;
+
+    font:14px/1.45 monospace;
+
+    text-align:right;
+
+    z-index:3;
+
+}
+
+/* OBJECT */
+
+#object{
+
+    position:absolute;
+
+    left:50%;
+
+    top:53%;
+
+    transform:translate(-50%,-50%);
+
+    width:430px;
+
+    height:470px;
+
+}
+
+/* OBJECT PARTS */
+
+.part{
+
+    position:absolute;
+
+    border:5px solid var(--ink);
+
+    background:#ddd;
+
+    cursor:grab;
+
+    user-select:none;
+
+    touch-action:none;
+
+    transition:
+
+        border-radius .18s,
+
+        transform .12s,
+
+        box-shadow .12s;
+
+}
+
+.part:active{
+
+    cursor:grabbing;
+
+}
+
+.part.grabbed{
+
+    box-shadow:
+
+        0 0 0 6px var(--pink),
+
+        0 15px 35px rgba(0,0,0,.25);
+
+    transform:scale(1.03);
+
+}
+
+#body{
+
+    width:270px;
+
+    height:330px;
+
+    left:80px;
+
+    top:55px;
+
+    background:#d9d6cd;
+
+}
+
+#top{
+
+    width:300px;
+
+    height:70px;
+
+    left:65px;
+
+    top:20px;
+
+    background:var(--orange);
+
+}
+
+#handle{
+
+    width:95px;
+
+    height:180px;
+
+    left:175px;
+
+    top:125px;
+
+    background:var(--ink);
+
+    border:0;
+
+}
+
+#handle:after{
+
+    content:"";
+
+    position:absolute;
+
+    left:25px;
+
+    top:25px;
+
+    width:45px;
+
+    height:130px;
+
+    background:var(--orange);
+
+}
+
+#foot{
+
+    width:300px;
+
+    height:35px;
+
+    left:65px;
+
+    bottom:35px;
+
+    background:var(--purple);
+
+}
+
+/* HINT */
+
+#hint{
+
+    position:absolute;
+
+    bottom:0;
+
+    left:0;
+
+    font:12px monospace;
+
+}
+
+/* TOOLS */
+
+#tools{
+
+    position:absolute;
+
+    right:0;
+
+    bottom:20px;
+
+    width:245px;
+
+}
+
+.tool{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:9px 0;
+
+    border-bottom:1px solid #777;
+
+    font:12px monospace;
+
+}
+
+.dot{
+
+    width:22px;
+
+    height:22px;
+
+    border:2px solid var(--ink);
+
+    background:var(--orange);
+
+}
+
+/* MESSAGE */
+
+#message{
+
+    position:absolute;
+
+    inset:0;
+
+    background:rgba(244,242,234,.96);
+
+    z-index:20;
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+
+}
+
+.msg{
+
+    max-width:800px;
+
+    padding:30px;
+
+}
+
+.big{
+
+    font-size:clamp(48px,8vw,100px);
+
+    font-weight:1000;
+
+    line-height:.85;
+
+}
+
+button{
+
+    background:var(--ink);
+
+    color:#fff;
+
+    border:0;
+
+    padding:13px 20px;
+
+    font-weight:900;
+
+    cursor:pointer;
+
+}
+
+button:hover{
+
+    background:var(--orange);
+
+}
+
+/* CAMERA */
+
+#camera{
+
+    position:fixed;
+
+    right:18px;
+
+    bottom:76px;
+
+    width:220px;
+
+    height:145px;
+
+    object-fit:cover;
+
+    display:none;
+
+    border:2px solid var(--ink);
+
+    transform:scaleX(-1);
+
+    z-index:50;
+
+    background:#000;
+
+}
+
+/* CAMERA LABEL */
+
+#cameraLabel{
+
+    position:fixed;
+
+    right:18px;
+
+    bottom:225px;
+
+    background:var(--ink);
+
+    color:white;
+
+    padding:6px 10px;
+
+    font:10px monospace;
+
+    display:none;
+
+    z-index:51;
+
+}
+
+/* HAND CURSOR */
+
+#cursor{
+
+    position:fixed;
+
+    width:22px;
+
+    height:22px;
+
+    background:var(--pink);
+
+    border:3px solid white;
+
+    border-radius:50%;
+
+    pointer-events:none;
+
+    display:none;
+
+    z-index:100;
+
+    transform:translate(-50%,-50%);
+
+    box-shadow:
+
+        0 0 0 4px var(--pink),
+
+        0 4px 15px rgba(0,0,0,.3);
+
+}
+
+#cursor.grabbing{
+
+    width:30px;
+
+    height:30px;
+
+    background:var(--orange);
+
+}
+
+/* STATUS */
+
+#status{
+
+    font:12px monospace;
+
+}
+
+#camBtn{
+
+    min-width:180px;
+
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+    #instruction,
+    #tools{
+
+        display:none;
+
+    }
+
+    #object{
+
+        transform:
+
+            translate(-50%,-50%)
+
+            scale(.72);
+
+    }
+
+    #camera{
+
+        width:150px;
+
+        height:100px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="logo">
+DÙNG ĐƯỢC?
+</div>
+
+<div class="case">
+OBJECT LAB / 001
+</div>
+
+</header>
+
+
+
+<main>
+
+<div id="lab">
+
+
+<div id="title">
+
+MỘT VẬT.<br>
+
+<span style="color:var(--orange)">
+NHIỀU CÁCH DÙNG.
+</span>
+
+</div>
+
+
+
+<div id="instruction">
+
+ĐỪNG CHỌN.<br>
+
+HÃY KÉO.<br><br>
+
+🤏 CHỤM NGÓN CÁI + NGÓN TRỎ<br>
+
+ĐỂ NẮM VẬT THỂ.<br><br>
+
+☝ DI CHUYỂN TAY<br>
+
+ĐỂ THAY ĐỔI HÌNH DẠNG.
+
+</div>
+
+
+
+<div id="object">
+
+
+<div
+class="part"
+id="body">
+</div>
+
+
+<div
+class="part"
+id="top">
+</div>
+
+
+<div
+class="part"
+id="handle">
+</div>
+
+
+<div
+class="part"
+id="foot">
+</div>
+
+
+</div>
+
+
+
+<div id="hint">
+
+CAMERA MODE • 🤏 CHỤM ĐỂ KÉO • THẢ ĐỂ ĐẶT
+
+</div>
+
+
+
+<div id="tools">
+
+
+<div class="tool">
+
+<span class="dot"></span>
+
+MODULE — HÌNH DẠNG
+
+</div>
+
+
+<div class="tool">
+
+<span
+class="dot"
+style="background:var(--purple)">
+</span>
+
+MODULE — CHỨC NĂNG
+
+</div>
+
+
+<div class="tool">
+
+<span
+class="dot"
+style="background:var(--pink)">
+</span>
+
+USER INTERVENTION
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div id="message">
+
+
+<div class="msg">
+
+
+<div class="big">
+
+BẠN VỪA TẠO<br>
+
+<span style="color:var(--orange)">
+
+MỘT CÁCH DÙNG.
+
+</span>
+
+</div>
+
+
+<p style="font:17px/1.5 monospace">
+
+Không có một hình dạng duy nhất.<br>
+
+Không có một cách sử dụng duy nhất.
+
+</p>
+
+
+<p style="font-size:22px;font-weight:900">
+
+NHƯNG — NÓ CÓ
+
+<span style="color:var(--orange)">
+DÙNG ĐƯỢC
+</span>
+
+VỚI NGƯỜI KHÁC KHÔNG?
+
+</p>
+
+
+<button onclick="location.reload()">
+
+THỬ MỘT VẬT KHÁC
+
+</button>
+
+
+</div>
+
+</div>
+
+
+</main>
+
+
+
+<footer>
+
+
+<div id="status">
+
+MOUSE MODE
+
+</div>
+
+
+<button id="camBtn">
+
+BẬT CAMERA
+
+</button>
+
+
+</footer>
+
+
+
+<video
+id="camera"
+autoplay
+muted
+playsinline>
+</video>
+
+
+<div id="cameraLabel">
+
+LIVE CAMERA
+
+</div>
+
+
+<div id="cursor">
+</div>
+
+
+
+<!--
+==========================================================
+MEDIAPIPE
+==========================================================
+-->
+
+<script type="module">
+
+import {
+    HandLandmarker,
+    FilesetResolver
+}
+from
+"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs";
+
+
+
+/* ======================================================
+   BASIC ELEMENTS
+====================================================== */
+
+const parts =
+[
+    ...document.querySelectorAll(".part")
+];
+
+const object =
+document.getElementById("object");
+
+const camera =
+document.getElementById("camera");
+
+const cursor =
+document.getElementById("cursor");
+
+const camBtn =
+document.getElementById("camBtn");
+
+const status =
+document.getElementById("status");
+
+const cameraLabel =
+document.getElementById("cameraLabel");
+
+const message =
+document.getElementById("message");
+
+
+
+/* ======================================================
+   MOUSE MODE
+====================================================== */
+
+let drag = null;
+
+let offsetX = 0;
+
+let offsetY = 0;
+
+let changes = 0;
+
+
+
+parts.forEach(part => {
+
+
+    part.addEventListener(
+        "pointerdown",
+        event => {
+
+            drag = part;
+
+            const rect =
+            part.getBoundingClientRect();
+
+            offsetX =
+            event.clientX - rect.left;
+
+            offsetY =
+            event.clientY - rect.top;
+
+            part.setPointerCapture(
+                event.pointerId
+            );
+
+        }
+    );
+
+
+    part.addEventListener(
+        "pointermove",
+        event => {
+
+            if(!drag) return;
+
+            movePart(
+                drag,
+                event.clientX,
+                event.clientY,
+                offsetX,
+                offsetY
+            );
+
+        }
+    );
+
+
+    part.addEventListener(
+        "pointerup",
+        () => {
+
+            if(drag){
+
+                drag.classList.remove(
+                    "grabbed"
+                );
+
+            }
+
+            drag = null;
+
+        }
+    );
+
+
+    part.addEventListener(
+        "pointercancel",
+        () => {
+
+            if(drag){
+
+                drag.classList.remove(
+                    "grabbed"
+                );
+
+            }
+
+            drag = null;
+
+        }
+    );
+
+
+    /* DOUBLE CLICK */
+
+    part.addEventListener(
+        "dblclick",
+        () => {
+
+            transformPart(part);
+
+        }
+    );
+
+});
+
+
+
+/* ======================================================
+   MOVE PART
+====================================================== */
+
+function movePart(
+    part,
+    clientX,
+    clientY,
+    offsetX,
+    offsetY
+){
+
+    const rect =
+    object.getBoundingClientRect();
+
+    let x =
+    clientX -
+    rect.left -
+    offsetX;
+
+    let y =
+    clientY -
+    rect.top -
+    offsetY;
+
+
+    x =
+    Math.max(
+        -70,
+        Math.min(
+            rect.width - 30,
+            x
+        )
+    );
+
+
+    y =
+    Math.max(
+        -70,
+        Math.min(
+            rect.height - 20,
+            y
+        )
+    );
+
+
+    part.style.left =
+    x + "px";
+
+    part.style.top =
+    y + "px";
+
+
+    changes++;
+
+
+    if(changes > 120){
+
+        message.style.display =
+        "flex";
+
+    }
+
+}
+
+
+
+/* ======================================================
+   TRANSFORM PART
+====================================================== */
+
+function transformPart(part){
+
+    changes++;
+
+
+    if(part.id === "handle"){
+
+        if(
+            part.dataset.mode !== "round"
+        ){
+
+            part.style.width =
+            "180px";
+
+            part.style.height =
+            "95px";
+
+            part.style.borderRadius =
+            "50%";
+
+            part.dataset.mode =
+            "round";
+
+        }
+
+        else{
+
+            part.style.width =
+            "95px";
+
+            part.style.height =
+            "180px";
+
+            part.style.borderRadius =
+            "0";
+
+            part.dataset.mode =
+            "normal";
+
+        }
+
+    }
+
+    else{
+
+        if(
+            part.dataset.mode !== "round"
+        ){
+
+            part.style.borderRadius =
+            "45px";
+
+            part.dataset.mode =
+            "round";
+
+        }
+
+        else{
+
+            part.style.borderRadius =
+            "0";
+
+            part.dataset.mode =
+            "normal";
+
+        }
+
+    }
+
+}
+
+
+
+/* ======================================================
+   MEDIAPIPE
+====================================================== */
+
+let handLandmarker = null;
+
+let cameraStream = null;
+
+let lastVideoTime = -1;
+
+let cameraRunning = false;
+
+let handGrabbed = null;
+
+let grabOffsetX = 0;
+
+let grabOffsetY = 0;
+
+
+
+/* ======================================================
+   LOAD MEDIAPIPE
+====================================================== */
+
+async function createHandLandmarker(){
+
+    status.textContent =
+    "ĐANG TẢI AI NHẬN DIỆN BÀN TAY...";
+
+
+    const vision =
+    await FilesetResolver.forVisionTasks(
+
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
+
+    );
+
+
+    handLandmarker =
+    await HandLandmarker.createFromOptions(
+
+        vision,
+
+        {
+
+            baseOptions:{
+
+                modelAssetPath:
+
+                "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+
+                delegate:"GPU"
+
+            },
+
+            runningMode:"VIDEO",
+
+            numHands:1,
+
+            minHandDetectionConfidence:0.5,
+
+            minHandPresenceConfidence:0.5,
+
+            minTrackingConfidence:0.5
+
+        }
+
+    );
+
+
+    status.textContent =
+    "AI BÀN TAY SẴN SÀNG";
+
+}
+
+
+
+/* ======================================================
+   START CAMERA
+====================================================== */
+
+camBtn.addEventListener(
+    "click",
+    startCamera
+);
+
+
+
+async function startCamera(){
+
+    try{
+
+        camBtn.disabled = true;
+
+        status.textContent =
+        "ĐANG MỞ CAMERA...";
+
+
+        if(!handLandmarker){
+
+            await createHandLandmarker();
+
+        }
+
+
+        cameraStream =
+        await navigator.mediaDevices.getUserMedia({
+
+            video:{
+
+                width:{
+                    ideal:1280
+                },
+
+                height:{
+                    ideal:720
+                },
+
+                facingMode:"user"
+
+            },
+
+            audio:false
+
+        });
+
+
+        camera.srcObject =
+        cameraStream;
+
+
+        await camera.play();
+
+
+        camera.style.display =
+        "block";
+
+
+        cameraLabel.style.display =
+        "block";
+
+
+        cursor.style.display =
+        "block";
+
+
+        cameraRunning =
+        true;
+
+
+        camBtn.textContent =
+        "CAMERA ĐANG BẬT";
+
+
+        status.textContent =
+        "HAND TRACKING — CHỤM NGÓN ĐỂ KÉO";
+
+
+        requestAnimationFrame(
+            detectHands
+        );
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+
+        status.textContent =
+        "KHÔNG MỞ ĐƯỢC CAMERA";
+
+
+        camBtn.disabled =
+        false;
+
+
+        alert(
+
+            "Không thể mở camera.\n\n" +
+
+            "Hãy kiểm tra Chrome đã được phép sử dụng camera chưa."
+
+        );
+
+    }
+
+}
+
+
+
+/* ======================================================
+   HAND TRACKING LOOP
+====================================================== */
+
+async function detectHands(){
+
+    if(!cameraRunning)
+        return;
+
+
+    if(
+        camera.readyState >= 2 &&
+        camera.currentTime !== lastVideoTime
+    ){
+
+        lastVideoTime =
+        camera.currentTime;
+
+
+        const result =
+        handLandmarker.detectForVideo(
+
+            camera,
+
+            performance.now()
+
+        );
+
+
+        if(
+            result.landmarks &&
+            result.landmarks.length > 0
+        ){
+
+            handleHand(
+                result.landmarks[0]
+            );
+
+        }
+
+        else{
+
+            cursor.style.display =
+            "none";
+
+            if(handGrabbed){
+
+                handGrabbed.classList.remove(
+                    "grabbed"
+                );
+
+                handGrabbed =
+                null;
+
+            }
+
+        }
+
+    }
+
+
+    requestAnimationFrame(
+        detectHands
+    );
+
+}
+
+
+
+/* ======================================================
+   HANDLE HAND
+====================================================== */
+
+function handleHand(landmarks){
+
+    /*
+       INDEX FINGER TIP = landmark 8
+       THUMB TIP        = landmark 4
+    */
+
+    const index =
+    landmarks[8];
+
+    const thumb =
+    landmarks[4];
+
+
+    /*
+       Camera is mirrored visually,
+       therefore invert X.
+    */
+
+    const x =
+    (1 - index.x) *
+    window.innerWidth;
+
+
+    const y =
+    index.y *
+    window.innerHeight;
+
+
+    cursor.style.display =
+    "block";
+
+
+    cursor.style.left =
+    x + "px";
+
+
+    cursor.style.top =
+    y + "px";
+
+
+    /*
+       Distance between thumb and index.
+    */
+
+    const dx =
+    index.x -
+    thumb.x;
+
+    const dy =
+    index.y -
+    thumb.y;
+
+    const distance =
+    Math.sqrt(
+        dx*dx +
+        dy*dy
+    );
+
+
+    /*
+       Smaller distance = pinching.
+    */
+
+    const pinching =
+    distance < 0.065;
+
+
+    if(pinching){
+
+        cursor.classList.add(
+            "grabbing"
+        );
+
+        if(!handGrabbed){
+
+            tryGrab(
+                x,
+                y
+            );
+
+        }
+
+    }
+
+    else{
+
+        cursor.classList.remove(
+            "grabbing"
+        );
+
+
+        if(handGrabbed){
+
+            handGrabbed.classList.remove(
+                "grabbed"
+            );
+
+            handGrabbed =
+            null;
+
+        }
+
+    }
+
+
+    /*
+       Move currently grabbed object.
+    */
+
+    if(handGrabbed){
+
+        movePart(
+
+            handGrabbed,
+
+            x,
+
+            y,
+
+            grabOffsetX,
+
+            grabOffsetY
+
+        );
+
+    }
+
+}
+
+
+
+/* ======================================================
+   GRAB OBJECT
+====================================================== */
+
+function tryGrab(x,y){
+
+    const element =
+    document.elementFromPoint(
+        x,
+        y
+    );
+
+
+    if(
+        element &&
+        element.classList.contains(
+            "part"
+        )
+    ){
+
+        handGrabbed =
+        element;
+
+
+        const rect =
+        handGrabbed.getBoundingClientRect();
+
+
+        grabOffsetX =
+        x - rect.left;
+
+
+        grabOffsetY =
+        y - rect.top;
+
+
+        handGrabbed.classList.add(
+            "grabbed"
+        );
+
+    }
+
+}
+
+
+
+/* ======================================================
+   KEYBOARD ESC
+====================================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(event.key === "Escape"){
+
+            if(handGrabbed){
+
+                handGrabbed.classList.remove(
+                    "grabbed"
+                );
+
+                handGrabbed =
+                null;
+
+            }
+
+        }
+
+    }
+);
+
+
+
+/* ======================================================
+   CLEAN UP CAMERA
+====================================================== */
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        if(cameraStream){
+
+            cameraStream
+            .getTracks()
+            .forEach(
+                track => track.stop()
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
