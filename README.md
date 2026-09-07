@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DÙNG ĐƯỢC? — USABLE ARTWORK</title>
+  <title>DÙNG ĐƯỢC? — AI HAND GESTURE</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     body {
@@ -19,12 +19,12 @@
       overflow: hidden;
     }
 
-    /* Thanh chọn vật dụng */
+    /* Thanh chọn đồ vật */
     #nav-bar {
       display: flex;
       gap: 10px;
       z-index: 10;
-      background: rgba(20, 20, 20, 0.8);
+      background: rgba(20, 20, 20, 0.9);
       padding: 8px 12px;
       border-radius: 20px;
       border: 1px solid #333;
@@ -37,7 +37,7 @@
       font-family: monospace;
       font-size: 0.8rem;
       cursor: pointer;
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 12px;
       transition: all 0.3s;
     }
@@ -48,11 +48,31 @@
       font-weight: bold;
     }
 
-    /* Sân khấu mô phỏng 3D CSS */
+    /* Ô hiển thị Camera thu nhỏ */
+    #cam-preview {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 120px;
+      height: 90px;
+      border: 1px solid #00ff66;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+      z-index: 20;
+    }
+    #webcam {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    /* Viewport hiển thị 3D */
     #viewport {
       perspective: 1000px;
       width: 260px;
-      height: 320px;
+      height: 300px;
       position: relative;
       display: flex;
       align-items: center;
@@ -69,24 +89,24 @@
       transition: opacity 0.5s ease;
     }
 
-    /* 01. CỬA */
-    #door-frame { width: 180px; height: 280px; border: 4px solid #333; background: #111; position: relative; }
+    /* Đồ vật 01: CỬA */
+    #door-frame { width: 180px; height: 270px; border: 4px solid #333; background: #111; position: relative; }
     #door-leaf {
       width: 100%; height: 100%; background: #222; border: 1px solid #444;
       transform-origin: left; transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex; align-items: center; justify-content: flex-end; padding-right: 15px;
     }
 
-    /* 02. VÒI NƯỚC */
-    #faucet-body { width: 40px; height: 140px; background: #333; border-radius: 20px 20px 0 0; position: relative; display: flex; flex-direction: column; align-items: center; }
-    #faucet-spout { width: 80px; height: 20px; background: #333; position: absolute; top: 20px; right: -60px; border-radius: 0 10px 10px 0; }
-    #water-stream { width: 12px; height: 0px; background: #00ccff; position: absolute; top: 40px; right: -56px; transition: height 0.5s; opacity: 0.8; }
+    /* Đồ vật 02: VÒI NƯỚC */
+    #faucet-body { width: 40px; height: 130px; background: #333; border-radius: 20px 20px 0 0; position: relative; display: flex; flex-direction: column; align-items: center; }
+    #faucet-spout { width: 70px; height: 20px; background: #333; position: absolute; top: 20px; right: -50px; border-radius: 0 10px 10px 0; }
+    #water-stream { width: 12px; height: 0px; background: #00ccff; position: absolute; top: 40px; right: -46px; transition: height 0.5s; opacity: 0.8; }
 
-    /* 03. CÔNG TẮC ĐÈN */
-    #switch-plate { width: 160px; height: 160px; background: #222; border: 2px solid #444; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; }
-    #light-bulb { width: 30px; height: 30px; border-radius: 50%; background: #333; position: absolute; top: -50px; transition: background 0.3s; }
+    /* Đồ vật 03: CÔNG TẮC ĐÈN */
+    #switch-plate { width: 150px; height: 150px; background: #222; border: 2px solid #444; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; }
+    #light-bulb { width: 30px; height: 30px; border-radius: 50%; background: #333; position: absolute; top: -45px; transition: all 0.3s; }
 
-    /* MÔ-ĐUN TAY CẦM / ĐIỀU KHIỂN BIẾN HÌNH */
+    /* MÔ-ĐUN TAY CẦM BIẾN HÌNH */
     .module-mesh {
       background: #00ccff;
       border-radius: 4px;
@@ -94,52 +114,61 @@
       box-shadow: 0 0 12px rgba(0, 204, 255, 0.6);
     }
 
-    /* Các dạng mô-đun biến hình */
     .mod-knob { width: 22px; height: 22px; border-radius: 50% !important; transform: translate(0, 0); }
     .mod-bar { width: 10px; height: 160px; border-radius: 5px !important; transform: translate(0, 0); }
     .mod-button { width: 50px; height: 50px; border-radius: 10px !important; transform: translate(0, 0); }
-    .mod-sensor { width: 120px; height: 120px; border-radius: 50% !important; background: rgba(0, 255, 102, 0.3); border: 2px dashed #00ff66; box-shadow: none; }
     .mod-detached { transform: translate(-40px, -30px) scale(0.6) rotate(45deg); opacity: 0.7; }
 
-    /* Bảng thông báo & Bắt cử chỉ */
+    /* Bảng trạng thái & Bắt cử chỉ */
     #ui-card {
       background: rgba(20, 20, 20, 0.95);
       border: 1px solid #333;
-      padding: 18px;
+      padding: 16px;
       border-radius: 10px;
       text-align: center;
       max-width: 420px;
       width: 100%;
     }
 
-    .title { font-size: 1rem; font-weight: bold; color: #00ccff; margin-bottom: 6px; }
-    .desc { font-size: 0.8rem; color: #aaa; margin-bottom: 12px; min-height: 36px; }
+    .title { font-size: 0.95rem; font-weight: bold; color: #00ccff; margin-bottom: 6px; }
+    .desc { font-size: 0.8rem; color: #aaa; margin-bottom: 10px; min-height: 32px; }
 
-    .btn-group { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
-    button.action-btn {
-      background: #222; color: #fff; border: 1px solid #555;
-      padding: 6px 10px; font-family: monospace; font-size: 0.75rem;
-      border-radius: 4px; cursor: pointer;
+    #gesture-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: #111;
+      border: 1px solid #00ff66;
+      color: #00ff66;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
     }
-    button.action-btn:active { background: #00ff66; color: #000; }
 
     #wall-of-ways { display: none; text-align: left; }
-    .stat-val { font-size: 1.6rem; font-weight: bold; color: #ff3366; }
+    .stat-val { font-size: 1.5rem; font-weight: bold; color: #ff3366; }
   </style>
+
+  <!-- Nạp AI MediaPipe nhận diện bàn tay -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
-  <!-- Thanh chuyển Vật dụng -->
+  <!-- Ô thu nhỏ Camera -->
+  <div id="cam-preview">
+    <video id="webcam" autoplay playsinline muted></video>
+  </div>
+
+  <!-- Thanh chọn Đồ vật -->
   <div id="nav-bar">
     <button class="nav-btn active" onclick="switchObject('DOOR')">01. CỬA</button>
     <button class="nav-btn" onclick="switchObject('FAUCET')">02. VÒI NƯỚC</button>
     <button class="nav-btn" onclick="switchObject('SWITCH')">03. CÔNG TẮC</button>
   </div>
 
-  <!-- Viewport Đồ họa 3D -->
+  <!-- Viewport 3D -->
   <div id="viewport">
-    
-    <!-- 01. CÁNH CỬA -->
+    <!-- CỬA -->
     <div id="obj-door" class="object-container">
       <div id="door-frame">
         <div id="door-leaf">
@@ -148,8 +177,8 @@
       </div>
     </div>
 
-    <!-- 02. VÒI NƯỚC -->
-    <div id="obj-faucet" class="object-container" style="opacity: 0; pointer-events: none;">
+    <!-- VÒI NƯỚC -->
+    <div id="obj-faucet" class="object-container" style="opacity: 0;">
       <div id="faucet-body">
         <div id="faucet-spout">
           <div id="water-stream"></div>
@@ -158,48 +187,40 @@
       </div>
     </div>
 
-    <!-- 03. CÔNG TẮC ĐÈN -->
-    <div id="obj-switch" class="object-container" style="opacity: 0; pointer-events: none;">
+    <!-- CÔNG TẮC -->
+    <div id="obj-switch" class="object-container" style="opacity: 0;">
       <div id="light-bulb"></div>
       <div id="switch-plate">
         <div id="switch-handle" class="module-mesh mod-knob"></div>
       </div>
     </div>
-
   </div>
 
-  <!-- Khung điều khiển & Kịch bản -->
+  <!-- Khung kịch bản -->
   <div id="ui-card">
     <div id="interactive-panel">
       <div class="title" id="p-title">01 — CÁCH DÙNG QUEN THUỘC</div>
-      <div class="desc" id="p-desc">Thao tác vặn/xoay truyền thống. Hãy thử kích hoạt vật dụng.</div>
-
-      <div class="btn-group">
-        <button class="action-btn" onclick="gestureInput('ROTATE')">1. Xoay cổ tay</button>
-        <button class="action-btn" onclick="gestureInput('PALM')">2. Xòe lòng bàn tay</button>
-        <button class="action-btn" onclick="gestureInput('POINT')">3. Chỉ 1 ngón tay</button>
-      </div>
+      <div class="desc" id="p-desc">Hãy chụm các ngón tay lại (Cử chỉ vặn/xoay) để vận hành.</div>
+      <div id="gesture-badge">Đang quét bàn tay...</div>
     </div>
 
-    <!-- Bức tường DÙNG ĐƯỢC -->
     <div id="wall-of-ways">
-      <div style="color:#fff; font-weight:bold; margin-bottom:8px;">BỨC TƯỜNG DÙNG ĐƯỢC (WALL OF WAYS)</div>
-      <p style="font-size:0.75rem; color:#888;">HÔM NAY TẠI TRIỂN LÃM:</p>
+      <div style="color:#fff; font-weight:bold; margin-bottom:6px;">BỨC TƯỜNG DÙNG ĐƯỢC</div>
       <div class="stat-val">183 NGƯỜI THAM GIA</div>
-      <div class="stat-val" style="color:#00ff66;">183 CỬ CHỈ MỚI</div>
-      <div class="stat-val" style="color:#00ccff;">42 THIẾT KẾ ĐƯỢC TẠO</div>
-      <p style="margin-top:8px; font-size:0.7rem; color:#aaa;">"THAY ĐỔI CÁCH BẠN DÙNG. THAY ĐỔI THIẾT KẾ."</p>
+      <div class="stat-val" style="color:#00ff66;">183 CỬ CHỈ CỬ ĐỘNG</div>
+      <div class="stat-val" style="color:#00ccff;">42 CÁCH MỞ MỚI</div>
+      <p style="margin-top:6px; font-size:0.7rem; color:#aaa;">"THAY ĐỔI CÁCH BẠN DÙNG. THAY ĐỔI THIẾT KẾ."</p>
     </div>
   </div>
 
   <script>
     let currentObj = 'DOOR';
-    let step = 1; // 1: Quen thuộc, 2: Tách mô-đun, 3: Biến hình theo cử chỉ, 4: Wall of ways
+    let step = 1;
     let isAnimating = false;
 
-    // DOM Elements
     const pTitle = document.getElementById('p-title');
     const pDesc = document.getElementById('p-desc');
+    const gestureBadge = document.getElementById('gesture-badge');
     const doorLeaf = document.getElementById('door-leaf');
     const waterStream = document.getElementById('water-stream');
     const lightBulb = document.getElementById('light-bulb');
@@ -214,22 +235,19 @@
       if (isAnimating) return;
       currentObj = objType;
       step = 1;
-      
-      // Update Tab Navigation
+
       document.querySelectorAll('.nav-btn').forEach((btn, idx) => {
         btn.classList.toggle('active', (idx === 0 && objType==='DOOR') || (idx === 1 && objType==='FAUCET') || (idx === 2 && objType==='SWITCH'));
       });
 
-      // Reset Viewport Display
       document.getElementById('obj-door').style.opacity = objType === 'DOOR' ? '1' : '0';
       document.getElementById('obj-faucet').style.opacity = objType === 'FAUCET' ? '1' : '0';
       document.getElementById('obj-switch').style.opacity = objType === 'SWITCH' ? '1' : '0';
 
-      // Reset Object States
       doorLeaf.style.transform = 'rotateY(0deg)';
       waterStream.style.height = '0px';
       lightBulb.style.background = '#333';
-      
+
       Object.values(handles).forEach(h => h.className = "module-mesh mod-knob");
 
       document.getElementById('interactive-panel').style.display = 'block';
@@ -241,13 +259,13 @@
     function updateText() {
       if (step === 1) {
         pTitle.innerText = `01 — CÁCH DÙNG QUEN THUỘC (${currentObj})`;
-        pDesc.innerText = "Sử dụng thao tác xoay cổ tay chuẩn để vận hành vật dụng.";
+        pDesc.innerText = "Chụm tay lại (Bóp/Xoay) để vận hành theo cách truyền thống.";
       } else if (step === 2) {
         pTitle.innerText = "02 — NHƯNG NẾU BẠN KHÔNG THỂ XOAY CỔ TAY?";
-        pDesc.innerText = "Cơ cấu đang tự động rã ra thành các mô-đun biến hình...";
+        pDesc.innerText = "Cơ cấu đang tự động rã thành các mô-đun biến hình...";
       } else if (step === 3) {
-        pTitle.innerText = "03 — TỰ TẠO THIẾT KẾ BẰNG CỬ CHỈ CỦA BẠN";
-        pDesc.innerText = "Dùng Xòe tay (Tạo thanh trượt lớn) hoặc Chỉ ngón (Tạo nút cảm ứng).";
+        pTitle.innerText = "03 — TẠO THIẾT KẾ BẰNG BÀN TAY BẠN";
+        pDesc.innerText = "Xòe rộng bàn tay (Thanh dài) hoặc Chỉ 1 ngón tay (Nút bấm).";
       } else if (step === 4) {
         document.getElementById('interactive-panel').style.display = 'none';
         document.getElementById('wall-of-ways').style.display = 'block';
@@ -271,10 +289,12 @@
       }
     }
 
-    function gestureInput(gesture) {
+    function processAIHandGesture(detectedGesture) {
       if (isAnimating) return;
 
-      if (step === 1 && gesture === 'ROTATE') {
+      gestureBadge.innerText = `Cử chỉ: ${detectedGesture}`;
+
+      if (step === 1 && detectedGesture === 'PINCH / CHỤM TAY') {
         isAnimating = true;
         executeAction();
 
@@ -291,17 +311,17 @@
         }, 1800);
 
       } else if (step === 3) {
-        isAnimating = true;
-        
-        // Transform Handle Module based on Gesture
-        if (gesture === 'PALM') {
+        if (detectedGesture === 'OPEN PALM / XÒE TAY') {
           handles[currentObj].className = "module-mesh mod-bar";
-        } else if (gesture === 'POINT') {
+        } else if (detectedGesture === 'POINTING / CHỈ NGÓN') {
           handles[currentObj].className = "module-mesh mod-button";
-        } else if (gesture === 'ROTATE') {
+        } else if (detectedGesture === 'PINCH / CHỤM TAY') {
           handles[currentObj].className = "module-mesh mod-knob";
+        } else {
+          return;
         }
 
+        isAnimating = true;
         setTimeout(() => {
           executeAction();
           setTimeout(() => {
@@ -312,6 +332,60 @@
         }, 800);
       }
     }
+
+    // --- KHỞI TẠO WEBCAM VÀ AI MEDIAPIPE ---
+    const videoElement = document.getElementById('webcam');
+
+    const hands = new Hands({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
+
+    hands.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.6,
+      minTrackingConfidence: 0.6
+    });
+
+    hands.onResults((results) => {
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        const landmarks = results.multiHandLandmarks[0];
+        
+        const thumbTip = landmarks[4];
+        const indexTip = landmarks[8];
+        const wrist = landmarks[0];
+        const middleTip = landmarks[12];
+
+        // Khoảng cách nhận diện các dáng tay
+        const pinchDist = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
+        const openDist = Math.hypot(wrist.x - middleTip.x, wrist.y - middleTip.y);
+
+        let detected = "ĐANG TÌM CỬ CHỈ";
+        if (pinchDist < 0.07) {
+          detected = "PINCH / CHỤM TAY";
+        } else if (openDist > 0.38) {
+          detected = "OPEN PALM / XÒE TAY";
+        } else if (indexTip.y < landmarks[6].y) {
+          detected = "POINTING / CHỈ NGÓN";
+        }
+
+        processAIHandGesture(detected);
+      } else {
+        gestureBadge.innerText = "Đưa tay trước webcam...";
+      }
+    });
+
+    const cameraUtils = new Camera(videoElement, {
+      onFrame: async () => {
+        await hands.send({ image: videoElement });
+      },
+      width: 320,
+      height: 240
+    });
+
+    cameraUtils.start().catch(() => {
+      gestureBadge.innerText = "Không thể mở Webcam";
+    });
 
     updateText();
   </script>
