@@ -17,53 +17,26 @@
       font-family: 'Courier New', Courier, monospace;
       overflow: hidden;
       height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      width: 100vw;
     }
 
-    /* Start Overlay for Autoplay & Camera Permission */
-    #start-screen {
+    #canvas-container {
+      width: 100%;
+      height: 100%;
       position: absolute;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #0d0d0d;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .start-btn {
-      margin-top: 20px;
-      padding: 15px 30px;
-      font-size: 1.2rem;
-      background: #00ccff;
-      color: #000;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: 0.2s;
-    }
-    .start-btn:hover {
-      background: #00ff66;
+      z-index: 1;
     }
 
     #webcam-container {
       position: absolute;
       top: 20px;
       right: 20px;
-      width: 160px;
-      height: 120px;
-      border: 1px solid #333;
-      border-radius: 8px;
+      width: 140px;
+      height: 105px;
+      border: 1px solid #444;
+      border-radius: 6px;
       overflow: hidden;
       z-index: 10;
       background: #000;
@@ -73,15 +46,6 @@
       height: 100%;
       object-fit: cover;
       transform: scaleX(-1);
-    }
-
-    #canvas-container {
-      width: 100vw;
-      height: 100vh;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
     }
 
     #ui-overlay {
@@ -95,69 +59,69 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 40px;
+      padding: 30px;
       text-align: center;
     }
 
     .header-title {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       letter-spacing: 2px;
       color: #888;
     }
 
     .prompt-box {
       background: rgba(0, 0, 0, 0.85);
-      padding: 20px 30px;
-      border-radius: 4px;
+      padding: 20px 25px;
+      border-radius: 6px;
       border: 1px solid #333;
       backdrop-filter: blur(5px);
-      max-width: 600px;
+      max-width: 550px;
       margin: 0 auto;
       pointer-events: auto;
     }
 
     .prompt-text {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: bold;
       color: #fff;
       margin-bottom: 8px;
     }
 
     .sub-text {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #aaa;
     }
 
     .status-badge {
       display: inline-block;
       padding: 4px 12px;
-      background: #222;
-      border: 1px solid #444;
+      background: #111;
+      border: 1px solid #00ff66;
       border-radius: 12px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #00ff66;
       margin-top: 10px;
     }
 
-    /* Fallback Manual Controls */
     .controls-fallback {
       margin-top: 15px;
       display: flex;
-      gap: 10px;
+      gap: 8px;
       justify-content: center;
     }
 
     .control-btn {
-      padding: 6px 12px;
+      padding: 8px 12px;
       background: #222;
       border: 1px solid #555;
       color: #fff;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       cursor: pointer;
       border-radius: 4px;
     }
     .control-btn:hover {
-      background: #444;
+      background: #00ccff;
+      color: #000;
     }
 
     #stats-wall {
@@ -165,32 +129,22 @@
       background: rgba(0, 0, 0, 0.9);
       border: 1px solid #444;
       padding: 20px;
-      max-width: 500px;
+      max-width: 450px;
       margin: 0 auto;
       text-align: left;
     }
 
     .stat-number {
-      font-size: 2.2rem;
+      font-size: 2rem;
       color: #ff3366;
       font-weight: bold;
     }
   </style>
 
-  <!-- Three.js (3D Library) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- MediaPipe Hands CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <!-- Nạp Three.js từ CDN chính thức -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 </head>
 <body>
-
-  <!-- Screen Bắt Đầu -->
-  <div id="start-screen">
-    <h1 style="letter-spacing: 3px; margin-bottom: 10px;">DÙNG ĐƯỢC?</h1>
-    <p style="color: #aaa; max-width: 400px;">CỬA MỞ BẰNG CỬ CHỈ BẢN THÂN. HÃY CHO PHÉP TRUY CẬP WEBCAM ĐỂ TRẢI NGHIỆM.</p>
-    <button class="start-btn" onclick="initExperience()">BẮT ĐẦU TRẢI NGHIỆM</button>
-  </div>
 
   <div id="webcam-container">
     <video id="webcam" autoplay playsinline muted></video>
@@ -202,33 +156,31 @@
     <div class="header-title">DÙNG ĐƯỢC? / USABLE?</div>
 
     <div class="prompt-box" id="prompt-box">
-      <div class="prompt-text" id="main-prompt">ĐÂY LÀ MỘT CÁNH CỬA.</div>
-      <div class="sub-text" id="sub-prompt">Đưa tay trước webcam hoặc dùng phím thử nghiệm bên dưới:</div>
-      <div class="status-badge" id="status-badge">Đang chờ nhận diện tay...</div>
+      <div class="prompt-text" id="main-prompt">01 — ĐÂY LÀ MỘT CÁNH CỬA</div>
+      <div class="sub-text" id="sub-prompt">Bấm các phím cử chỉ dưới đây hoặc bật Webcam để thử nghiệm:</div>
+      <div class="status-badge" id="status-badge">Trạng thái: Đã sẵn sàng</div>
 
-      <!-- Nút thao tác bằng tay (Fallback dự phòng khi không có webcam) -->
       <div class="controls-fallback">
-        <button class="control-btn" onclick="triggerGesture('PINCH')">Chụm Tay (Xoay)</button>
-        <button class="control-btn" onclick="triggerGesture('PALM')">Xòe Tay (Thanh dài)</button>
-        <button class="control-btn" onclick="triggerGesture('POINT')">Chỉ Ngón (Nút bấm)</button>
+        <button class="control-btn" onclick="handleGesture('PINCH')">1. Chụm tay (Xoay)</button>
+        <button class="control-btn" onclick="handleGesture('PALM')">2. Xòe tay (Thanh dài)</button>
+        <button class="control-btn" onclick="handleGesture('POINT')">3. Chỉ ngón (Nút bấm)</button>
       </div>
     </div>
 
     <div id="stats-wall">
-      <h2 style="margin-bottom: 15px; color: #fff;">BỨC TƯỜNG DÙNG ĐƯỢC</h2>
+      <h2 style="margin-bottom: 12px; color: #fff;">BỨC TƯỜNG DÙNG ĐƯỢC</h2>
       <p>HÔM NAY:</p>
       <div class="stat-number">183 NGƯỜI</div>
       <div class="stat-number" style="color: #00ff66;">183 CỬ CHỈ</div>
       <div class="stat-number" style="color: #00ccff;">27 CÁCH MỞ CỬA MỚI</div>
-      <p style="margin-top: 15px; font-size: 0.8rem; color: #888;">"THAY ĐỔI CÁCH BẠN DÙNG. THAY ĐỔI THIẾT KẾ."</p>
+      <p style="margin-top: 12px; font-size: 0.8rem; color: #888;">"THAY ĐỔI CÁCH BẠN DÙNG. THAY ĐỔI THIẾT KẾ."</p>
     </div>
 
-    <div style="font-size: 0.8rem; color: #555;">Mô hình tương tác DÙNG ĐƯỢC? (Usable?)</div>
+    <div style="font-size: 0.75rem; color: #555;">DỰ ÁN NGHỆ THUẬT TƯƠNG TÁC DÙNG ĐƯỢC?</div>
   </div>
 
   <script>
     let currentStage = 1;
-    let gestureState = "NONE";
     let isDoorOpen = false;
     let stageTimer = null;
 
@@ -238,7 +190,7 @@
     const statsWall = document.getElementById('stats-wall');
     const promptBox = document.getElementById('prompt-box');
 
-    // --- 1. DỰNG CẢNH THREE.JS (3D) ---
+    // --- 1. DỰNG MÔ HÌNH 3D VỚI THREE.JS ---
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0d0d0d);
@@ -248,35 +200,38 @@
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
     dirLight.position.set(5, 10, 7);
     scene.add(dirLight);
 
-    // Cấu trúc Khung & Cửa
+    // Khung & Cánh cửa
     const doorGroup = new THREE.Group();
     scene.add(doorGroup);
 
-    const frameGeo = new THREE.BoxGeometry(2.6, 4.2, 0.1);
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-    const frame = new THREE.Mesh(frameGeo, frameMat);
+    const frame = new THREE.Mesh(
+      new THREE.BoxGeometry(2.6, 4.2, 0.1),
+      new THREE.MeshStandardMaterial({ color: 0x222222 })
+    );
     doorGroup.add(frame);
 
     const doorPivot = new THREE.Group();
     doorPivot.position.set(-1.2, 0, 0.05);
     doorGroup.add(doorPivot);
 
-    const doorGeo = new THREE.BoxGeometry(2.4, 4.0, 0.08);
-    const doorMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.4 });
-    const doorMesh = new THREE.Mesh(doorGeo, doorMat);
+    const doorMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, 4.0, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.4 })
+    );
     doorMesh.position.set(1.2, 0, 0);
     doorPivot.add(doorMesh);
 
-    // Tay cầm biến đổi (Handle)
+    // Tay cầm mô-đun
     const handleGroup = new THREE.Group();
     handleGroup.position.set(2.0, 0, 0.08);
     doorPivot.add(handleGroup);
@@ -284,8 +239,8 @@
     const knobGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.1, 32);
     const buttonGeo = new THREE.BoxGeometry(0.4, 0.4, 0.1);
     const barGeo = new THREE.BoxGeometry(0.1, 3.0, 0.1);
-
     const handleMat = new THREE.MeshStandardMaterial({ color: 0x00ccff, metalness: 0.8, roughness: 0.2 });
+
     let currentHandleMesh = new THREE.Mesh(knobGeo, handleMat);
     currentHandleMesh.rotation.x = Math.PI / 2;
     handleGroup.add(currentHandleMesh);
@@ -296,17 +251,17 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // --- 2. CÁC GIAI ĐOẠN TRẢI NGHIỆM ---
+    // --- 2. CÁC THAO TÁC KỊCH BẢN ---
     function updateStageUI() {
       if (currentStage === 1) {
         mainPrompt.innerText = "01 — CÁCH MỞ QUEN THUỘC";
-        subPrompt.innerText = "Tạo cử chỉ xoay/chụm tay để mở cửa.";
+        subPrompt.innerText = "Bấm '1. Chụm tay' để thực hiện thao tác xoay mở cửa.";
       } else if (currentStage === 2) {
         mainPrompt.innerText = "02 — NHƯNG NẾU BẠN KHÔNG THỂ XOAY CỔ TAY?";
-        subPrompt.innerText = "Tay cầm đang tách khỏi cửa thành các mô-đun...";
+        subPrompt.innerText = "Cơ cấu tay cầm đang biến đổi thành các mô-đun...";
       } else if (currentStage === 3) {
         mainPrompt.innerText = "03 — TẠO CÁCH MỞ MỚI BẰNG CỬ CHỈ CỦA BẠN";
-        subPrompt.innerText = "Thay đổi dáng tay để biến đổi hình dạng thiết kế tay cầm.";
+        subPrompt.innerText = "Chọn các dạng cử chỉ phía dưới để tạo hình dạng tay cầm mới.";
       } else if (currentStage === 4) {
         promptBox.style.display = "none";
         statsWall.style.display = "block";
@@ -365,26 +320,21 @@
       }
     }
 
-    // Nút kích hoạt giả lập cử chỉ (Fallback Mode)
-    function triggerGesture(type) {
-      if (type === 'PINCH') {
-        processGestureInput('PINCH / ROTATE');
-      } else if (type === 'PALM') {
-        processGestureInput('OPEN PALM');
-      } else if (type === 'POINT') {
-        processGestureInput('POINTING');
-      }
-    }
-
-    function processGestureInput(gesture) {
-      statusBadge.innerText = `Cử chỉ: ${gesture}`;
-      
-      if (currentStage === 1 && (gesture === 'PINCH / ROTATE' || gesture === 'OPEN PALM')) {
+    function handleGesture(type) {
+      if (currentStage === 1 && type === 'PINCH') {
+        statusBadge.innerText = "Thực hiện: Xoay cổ tay -> Mở cửa";
         openDoor();
       } else if (currentStage === 3) {
-        if (gesture === 'OPEN PALM') setHandleType('BAR');
-        if (gesture === 'POINTING') setHandleType('BUTTON');
-        if (gesture === 'PINCH / ROTATE') setHandleType('KNOB');
+        if (type === 'PALM') {
+          setHandleType('BAR');
+          statusBadge.innerText = "Biến hình: Thanh trượt dài";
+        } else if (type === 'POINT') {
+          setHandleType('BUTTON');
+          statusBadge.innerText = "Biến hình: Nút bấm lớn";
+        } else if (type === 'PINCH') {
+          setHandleType('KNOB');
+          statusBadge.innerText = "Biến hình: Tay nắm tròn";
+        }
 
         if (!isDoorOpen) {
           clearTimeout(stageTimer);
@@ -394,67 +344,25 @@
               currentStage = 4;
               updateStageUI();
             }, 2000);
-          }, 2000);
+          }, 1500);
         }
       }
     }
 
-    // --- 3. KHỞI TẠO MEDIAPIPE WEBCAM ---
-    function initExperience() {
-      document.getElementById('start-screen').style.display = 'none';
-
-      const videoElement = document.getElementById('webcam');
-
-      const hands = new Hands({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-      });
-
-      hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
-      });
-
-      hands.onResults((results) => {
-        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-          const landmarks = results.multiHandLandmarks[0];
-          const thumb = landmarks[4];
-          const index = landmarks[8];
-          const wrist = landmarks[0];
-          const middle = landmarks[12];
-
-          const pinchDist = Math.hypot(thumb.x - index.x, thumb.y - index.y);
-          const openDist = Math.hypot(wrist.x - middle.x, wrist.y - middle.y);
-
-          let detected = "HAND DETECTED";
-          if (pinchDist < 0.08) detected = "PINCH / ROTATE";
-          else if (openDist > 0.35) detected = "OPEN PALM";
-          else if (index.y < landmarks[6].y) detected = "POINTING";
-
-          processGestureInput(detected);
-        } else {
-          statusBadge.innerText = "Đang quét bàn tay...";
-        }
-      });
-
-      const cameraUtils = new Camera(videoElement, {
-        onFrame: async () => {
-          await hands.send({ image: videoElement });
-        },
-        width: 640,
-        height: 480
-      });
-
-      cameraUtils.start().catch(err => {
-        console.warn("Không thể mở Webcam, bạn có thể dùng các nút bên dưới:", err);
-        statusBadge.innerText = "Webcam không khả dụng - Dùng nút bấm thử nghiệm";
-      });
-
-      updateStageUI();
+    // --- 3. KÍCH HOẠT CAMERA MẶC ĐỊNH TRÌNH DUYỆT ---
+    async function startWebcam() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById('webcam').srcObject = stream;
+      } catch (e) {
+        statusBadge.innerText = "Không dùng Camera - Bạn có thể dùng nút bấm bên dưới";
+      }
     }
 
-    // Animation Loop
+    // Khởi chạy
+    startWebcam();
+    updateStageUI();
+
     function animate() {
       requestAnimationFrame(animate);
       if (currentStage === 2) {
