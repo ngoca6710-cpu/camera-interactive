@@ -1,0 +1,572 @@
+from pathlib import Path
+import zipfile
+
+root = Path("/mnt/data/DUNG_DUOC_OBJECT_LAB_V2")
+root.mkdir(exist_ok=True)
+
+html = r'''<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DÙNG ĐƯỢC? — Object Lab</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #F3F1E9;
+    color: #111111;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+}
+
+header {
+    height: 74px;
+    border-bottom: 2px solid #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.header-right {
+    font-family: monospace;
+    font-size: 12px;
+}
+
+main {
+    height: calc(100vh - 132px);
+    position: relative;
+}
+
+.intro {
+    position: absolute;
+    left: 30px;
+    top: 28px;
+    z-index: 5;
+}
+
+.intro h1 {
+    margin: 0;
+    font-size: clamp(38px, 6vw, 82px);
+    line-height: 0.86;
+    letter-spacing: -4px;
+}
+
+.orange {
+    color: #FF5A00;
+}
+
+.intro p {
+    margin-top: 25px;
+    width: 330px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.stage {
+    position: absolute;
+    width: 560px;
+    height: 500px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -46%);
+}
+
+.object-title {
+    text-align: center;
+    font-family: monospace;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.object {
+    position: relative;
+    width: 420px;
+    height: 400px;
+    margin: auto;
+}
+
+.part {
+    position: absolute;
+    border: 4px solid #111;
+    background: #ddd;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    transition: transform 0.2s, width 0.2s, height 0.2s, border-radius 0.2s;
+}
+
+.part:active {
+    cursor: grabbing;
+}
+
+#mainBody {
+    width: 230px;
+    height: 290px;
+    left: 95px;
+    top: 60px;
+    background: #D8D5CB;
+}
+
+#moduleA {
+    width: 110px;
+    height: 52px;
+    left: 155px;
+    top: 25px;
+    background: #FF5A00;
+}
+
+#moduleB {
+    width: 38px;
+    height: 130px;
+    left: 191px;
+    top: 125px;
+    background: #111;
+    border-color: #111;
+}
+
+#moduleB::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 85px;
+    left: 6px;
+    top: 20px;
+    background: #FF5A00;
+}
+
+#moduleC {
+    width: 270px;
+    height: 30px;
+    left: 75px;
+    top: 350px;
+    background: #6F00FF;
+}
+
+#hint {
+    text-align: center;
+    font-family: monospace;
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+.controls {
+    position: absolute;
+    right: 30px;
+    bottom: 28px;
+    width: 250px;
+}
+
+.controls-title {
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.object-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.object-buttons button {
+    padding: 12px 8px;
+    background: #F3F1E9;
+    border: 2px solid #111;
+    cursor: pointer;
+    font-weight: 900;
+    font-size: 11px;
+}
+
+.object-buttons button:hover {
+    background: #FF5A00;
+    color: white;
+}
+
+.reset {
+    margin-top: 8px;
+    width: 100%;
+    padding: 12px;
+    border: 0;
+    background: #111;
+    color: white;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.counter {
+    position: absolute;
+    left: 30px;
+    bottom: 28px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+#result {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #F3F1E9;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.result-inner {
+    max-width: 850px;
+    padding: 30px;
+}
+
+.result-small {
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.result-big {
+    margin: 15px 0;
+    font-size: clamp(48px, 8vw, 105px);
+    font-weight: 900;
+    line-height: 0.82;
+    letter-spacing: -5px;
+}
+
+.result-text {
+    font-family: monospace;
+    line-height: 1.6;
+}
+
+.close-result {
+    margin-top: 25px;
+    padding: 14px 25px;
+    border: 0;
+    background: #111;
+    color: white;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+footer {
+    height: 58px;
+    border-top: 2px solid #111;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 28px;
+    font-family: monospace;
+    font-size: 11px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">DÙNG ĐƯỢC?</div>
+    <div class="header-right">OBJECT LAB / 002</div>
+</header>
+
+<main>
+
+    <section class="intro">
+        <h1>
+            MỘT VẬT.<br>
+            <span class="orange">NHIỀU CÁCH DÙNG.</span>
+        </h1>
+
+        <p>
+            ĐỪNG CHỌN CÁCH DÙNG CÓ SẴN.<br>
+            HÃY TỰ THAY ĐỔI VẬT THỂ.<br><br>
+            KÉO CÁC MODULE.<br>
+            DOUBLE CLICK ĐỂ BIẾN HÌNH.
+        </p>
+    </section>
+
+    <section class="stage">
+
+        <div class="object-title" id="objectName">
+            OBJECT 01 — CÁNH CỬA
+        </div>
+
+        <div class="object" id="object">
+
+            <div class="part" id="mainBody"></div>
+            <div class="part" id="moduleA"></div>
+            <div class="part" id="moduleB"></div>
+            <div class="part" id="moduleC"></div>
+
+        </div>
+
+        <div id="hint">
+            KÉO MODULE • DOUBLE CLICK MODULE • TẠO RA MỘT CÁCH DÙNG MỚI
+        </div>
+
+    </section>
+
+    <section class="controls">
+
+        <div class="controls-title">
+            THỬ MỘT VẬT KHÁC
+        </div>
+
+        <div class="object-buttons">
+            <button onclick="changeObject('door')">CỬA</button>
+            <button onclick="changeObject('faucet')">VÒI NƯỚC</button>
+            <button onclick="changeObject('switch')">CÔNG TẮC</button>
+            <button onclick="changeObject('elevator')">THANG MÁY</button>
+        </div>
+
+        <button class="reset" onclick="resetObject()">
+            RESET VẬT THỂ
+        </button>
+
+    </section>
+
+    <div class="counter">
+        USER INTERVENTION: <span id="count">0</span>
+    </div>
+
+</main>
+
+<footer>
+    <span>GESTURE → MODULE → FORM → FUNCTION</span>
+    <span>DESIGN WITH USERS / NOT FOR USERS</span>
+</footer>
+
+<div id="result">
+    <div class="result-inner">
+
+        <div class="result-small">
+            USER INTERVENTION COMPLETE
+        </div>
+
+        <div class="result-big">
+            BẠN VỪA TẠO<br>
+            <span class="orange">MỘT CÁCH DÙNG.</span>
+        </div>
+
+        <div class="result-text">
+            Không có một hình dạng duy nhất.<br>
+            Không có một cách sử dụng duy nhất.<br><br>
+            Nhưng một thiết kế chỉ thật sự hoàn thiện<br>
+            khi người sử dụng nói:
+            <strong>DÙNG ĐƯỢC.</strong>
+        </div>
+
+        <button class="close-result" onclick="closeResult()">
+            TIẾP TỤC THỬ
+        </button>
+
+    </div>
+</div>
+
+<script>
+
+let selectedObject = "door";
+let interactionCount = 0;
+
+const objectData = {
+
+    door: {
+        name: "OBJECT 01 — CÁNH CỬA",
+        colors: ["#FF5A00", "#111111", "#6F00FF"]
+    },
+
+    faucet: {
+        name: "OBJECT 02 — VÒI NƯỚC",
+        colors: ["#6F00FF", "#111111", "#FF5A00"]
+    },
+
+    switch: {
+        name: "OBJECT 03 — CÔNG TẮC",
+        colors: ["#FF0087", "#111111", "#FF5A00"]
+    },
+
+    elevator: {
+        name: "OBJECT 04 — NÚT THANG MÁY",
+        colors: ["#FF5A00", "#6F00FF", "#111111"]
+    }
+
+};
+
+const parts = document.querySelectorAll(".part");
+
+function registerInteraction() {
+
+    interactionCount++;
+
+    document.getElementById("count").textContent = interactionCount;
+
+    if (interactionCount >= 12) {
+        document.getElementById("result").style.display = "flex";
+    }
+}
+
+parts.forEach(part => {
+
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    part.addEventListener("pointerdown", function(e) {
+
+        dragging = true;
+
+        const rect = part.getBoundingClientRect();
+
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+
+        part.setPointerCapture(e.pointerId);
+
+    });
+
+    part.addEventListener("pointermove", function(e) {
+
+        if (!dragging) return;
+
+        const object = document.getElementById("object");
+        const objectRect = object.getBoundingClientRect();
+
+        let x = e.clientX - objectRect.left - offsetX;
+        let y = e.clientY - objectRect.top - offsetY;
+
+        x = Math.max(-30, Math.min(objectRect.width - 30, x));
+        y = Math.max(-30, Math.min(objectRect.height - 30, y));
+
+        part.style.left = x + "px";
+        part.style.top = y + "px";
+
+    });
+
+    part.addEventListener("pointerup", function() {
+
+        if (dragging) {
+            registerInteraction();
+        }
+
+        dragging = false;
+
+    });
+
+    part.addEventListener("dblclick", function() {
+
+        registerInteraction();
+
+        const currentRadius = part.style.borderRadius;
+
+        if (currentRadius === "50%") {
+
+            part.style.borderRadius = "0";
+            part.style.transform = "rotate(0deg)";
+
+        } else {
+
+            part.style.borderRadius = "50%";
+            part.style.transform = "rotate(25deg)";
+
+        }
+
+    });
+
+});
+
+function changeObject(type) {
+
+    selectedObject = type;
+
+    const data = objectData[type];
+
+    document.getElementById("objectName").textContent = data.name;
+
+    document.getElementById("moduleA").style.background = data.colors[0];
+    document.getElementById("moduleB").style.background = data.colors[1];
+    document.getElementById("moduleC").style.background = data.colors[2];
+
+    resetObject();
+
+}
+
+function resetObject() {
+
+    document.getElementById("mainBody").style.left = "95px";
+    document.getElementById("mainBody").style.top = "60px";
+    document.getElementById("mainBody").style.borderRadius = "0";
+    document.getElementById("mainBody").style.transform = "rotate(0deg)";
+
+    document.getElementById("moduleA").style.left = "155px";
+    document.getElementById("moduleA").style.top = "25px";
+    document.getElementById("moduleA").style.borderRadius = "0";
+    document.getElementById("moduleA").style.transform = "rotate(0deg)";
+
+    document.getElementById("moduleB").style.left = "191px";
+    document.getElementById("moduleB").style.top = "125px";
+    document.getElementById("moduleB").style.borderRadius = "0";
+    document.getElementById("moduleB").style.transform = "rotate(0deg)";
+
+    document.getElementById("moduleC").style.left = "75px";
+    document.getElementById("moduleC").style.top = "350px";
+    document.getElementById("moduleC").style.borderRadius = "0";
+    document.getElementById("moduleC").style.transform = "rotate(0deg)";
+
+}
+
+function closeResult() {
+
+    document.getElementById("result").style.display = "none";
+
+}
+
+</script>
+
+</body>
+</html>
+'''
+
+readme = """DÙNG ĐƯỢC? — OBJECT LAB V2
+
+CÁCH CHẠY:
+1. Giải nén ZIP.
+2. Mở file index.html bằng Chrome/Edge.
+3. Không cần cài thư viện.
+4. Kéo các module bằng chuột/trackpad.
+5. Double-click module để biến đổi.
+6. Thử 4 vật thể: Cửa, Vòi nước, Công tắc, Nút thang máy.
+
+ĐƯA LÊN GITHUB:
+- Tạo repository mới.
+- Upload index.html.
+- Commit changes.
+- Vào Settings > Pages.
+- Source: Deploy from a branch.
+- Branch: main / root.
+- Sau đó GitHub sẽ tạo đường link website.
+
+LƯU Ý:
+Đây là bản prototype tương tác bằng chuột/trackpad.
+Chưa tích hợp nhận diện bàn tay bằng webcam.
+Bước tiếp theo có thể tích hợp MediaPipe Hands để:
+GESTURE → MODULE → FORM → FUNCTION.
+"""
+
+(root / "index.html").write_text(html, encoding="utf-8")
+(root / "README.txt").write_text(readme, encoding="utf-8")
+
+zip_path = Path("/mnt/data/DUNG_DUOC_OBJECT_LAB_V2.zip")
+
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+    z.write(root / "index.html", "index.html")
+    z.write(root / "README.txt", "README.txt")
+
+print(f"Đã tạo: {zip_path}")
